@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PatientsRouteImport } from './routes/patients'
 import { Route as PaymentsRouteImport } from './routes/payments'
+import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as ApplicationsIndexRouteImport } from './routes/applications.index'
 import { Route as ApplicationsIdRouteImport } from './routes/applications.$id'
 import { Route as CampaignsIndexRouteImport } from './routes/campaigns.index'
@@ -30,6 +31,11 @@ const PatientsRoute = PatientsRouteImport.update({
 const PaymentsRoute = PaymentsRouteImport.update({
   id: '/payments',
   path: '/payments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportsRoute = ReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApplicationsIndexRoute = ApplicationsIndexRouteImport.update({
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/patients': typeof PatientsRoute
   '/payments': typeof PaymentsRoute
+  '/reports': typeof ReportsRoute
   '/applications/$id': typeof ApplicationsIdRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/applications/': typeof ApplicationsIndexRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/patients': typeof PatientsRoute
   '/payments': typeof PaymentsRoute
+  '/reports': typeof ReportsRoute
   '/applications/$id': typeof ApplicationsIdRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/applications': typeof ApplicationsIndexRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/patients': typeof PatientsRoute
   '/payments': typeof PaymentsRoute
+  '/reports': typeof ReportsRoute
   '/applications/$id': typeof ApplicationsIdRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/applications/': typeof ApplicationsIndexRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/patients'
     | '/payments'
+    | '/reports'
     | '/applications/$id'
     | '/campaigns/$id'
     | '/applications/'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/patients'
     | '/payments'
+    | '/reports'
     | '/applications/$id'
     | '/campaigns/$id'
     | '/applications'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/patients'
     | '/payments'
+    | '/reports'
     | '/applications/$id'
     | '/campaigns/$id'
     | '/applications/'
@@ -115,6 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PatientsRoute: typeof PatientsRoute
   PaymentsRoute: typeof PaymentsRoute
+  ReportsRoute: typeof ReportsRoute
   ApplicationsIdRoute: typeof ApplicationsIdRoute
   CampaignsIdRoute: typeof CampaignsIdRoute
   ApplicationsIndexRoute: typeof ApplicationsIndexRoute
@@ -142,6 +155,13 @@ declare module '@tanstack/react-router' {
       path: '/payments'
       fullPath: '/payments'
       preLoaderRoute: typeof PaymentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reports': {
+      id: '/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof ReportsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/applications/': {
@@ -179,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PatientsRoute: PatientsRoute,
   PaymentsRoute: PaymentsRoute,
+  ReportsRoute: ReportsRoute,
   ApplicationsIdRoute: ApplicationsIdRoute,
   CampaignsIdRoute: CampaignsIdRoute,
   ApplicationsIndexRoute: ApplicationsIndexRoute,
@@ -187,3 +208,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
