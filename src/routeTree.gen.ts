@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PatientsRouteImport } from './routes/patients'
 import { Route as ApplicationsIndexRouteImport } from './routes/applications.index'
 import { Route as ApplicationsIdRouteImport } from './routes/applications.$id'
 import { Route as CampaignsIndexRouteImport } from './routes/campaigns.index'
@@ -18,6 +19,11 @@ import { Route as CampaignsIdRouteImport } from './routes/campaigns.$id'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PatientsRoute = PatientsRouteImport.update({
+  id: '/patients',
+  path: '/patients',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApplicationsIndexRoute = ApplicationsIndexRouteImport.update({
@@ -43,6 +49,7 @@ const CampaignsIdRoute = CampaignsIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/patients': typeof PatientsRoute
   '/applications/$id': typeof ApplicationsIdRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/applications/': typeof ApplicationsIndexRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/patients': typeof PatientsRoute
   '/applications/$id': typeof ApplicationsIdRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/applications': typeof ApplicationsIndexRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/patients': typeof PatientsRoute
   '/applications/$id': typeof ApplicationsIdRoute
   '/campaigns/$id': typeof CampaignsIdRoute
   '/applications/': typeof ApplicationsIndexRoute
@@ -67,6 +76,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/patients'
     | '/applications/$id'
     | '/campaigns/$id'
     | '/applications/'
@@ -74,6 +84,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/patients'
     | '/applications/$id'
     | '/campaigns/$id'
     | '/applications'
@@ -81,6 +92,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/patients'
     | '/applications/$id'
     | '/campaigns/$id'
     | '/applications/'
@@ -89,6 +101,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PatientsRoute: typeof PatientsRoute
   ApplicationsIdRoute: typeof ApplicationsIdRoute
   CampaignsIdRoute: typeof CampaignsIdRoute
   ApplicationsIndexRoute: typeof ApplicationsIndexRoute
@@ -102,6 +115,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/patients': {
+      id: '/patients'
+      path: '/patients'
+      fullPath: '/patients'
+      preLoaderRoute: typeof PatientsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/applications/': {
@@ -137,6 +157,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PatientsRoute: PatientsRoute,
   ApplicationsIdRoute: ApplicationsIdRoute,
   CampaignsIdRoute: CampaignsIdRoute,
   ApplicationsIndexRoute: ApplicationsIndexRoute,
