@@ -67,8 +67,8 @@ export type Campaign = {
 };
 
 export const HOSPITAL = {
-  name: "Alliance Hospital",
-  city: "Abuja, FCT",
+  name: "NNPC Multispecialty Hospital",
+  city: "Abuja pilot",
   verified: true,
   reviewer: "Dr. Amaka Eze",
 };
