@@ -9,7 +9,7 @@ import { usePortalState } from "@/lib/store";
 
 const filters = ["all", "pending", "info-requested", "approved", "rejected"] as const;
 
-export const Route = createFileRoute("/applications")({
+export const Route = createFileRoute("/applications/")({
   head: () => ({
     meta: [
       { title: "Patient applications — FundEzer Hospital Portal" },
