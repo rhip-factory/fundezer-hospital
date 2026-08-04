@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApplicationsIndexRouteImport } from './routes/applications.index'
 import { Route as ApplicationsIdRouteImport } from './routes/applications.$id'
 import { Route as CampaignsIndexRouteImport } from './routes/campaigns.index'
+import { Route as CampaignsIdRouteImport } from './routes/campaigns.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,16 +35,23 @@ const CampaignsIndexRoute = CampaignsIndexRouteImport.update({
   path: '/campaigns/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CampaignsIdRoute = CampaignsIdRouteImport.update({
+  id: '/campaigns/$id',
+  path: '/campaigns/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/applications/$id': typeof ApplicationsIdRoute
+  '/campaigns/$id': typeof CampaignsIdRoute
   '/applications/': typeof ApplicationsIndexRoute
   '/campaigns/': typeof CampaignsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/applications/$id': typeof ApplicationsIdRoute
+  '/campaigns/$id': typeof CampaignsIdRoute
   '/applications': typeof ApplicationsIndexRoute
   '/campaigns': typeof CampaignsIndexRoute
 }
@@ -51,20 +59,38 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/applications/$id': typeof ApplicationsIdRoute
+  '/campaigns/$id': typeof CampaignsIdRoute
   '/applications/': typeof ApplicationsIndexRoute
   '/campaigns/': typeof CampaignsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/applications/$id' | '/applications/' | '/campaigns/'
+  fullPaths:
+    | '/'
+    | '/applications/$id'
+    | '/campaigns/$id'
+    | '/applications/'
+    | '/campaigns/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/applications/$id' | '/applications' | '/campaigns'
-  id: '__root__' | '/' | '/applications/$id' | '/applications/' | '/campaigns/'
+  to:
+    | '/'
+    | '/applications/$id'
+    | '/campaigns/$id'
+    | '/applications'
+    | '/campaigns'
+  id:
+    | '__root__'
+    | '/'
+    | '/applications/$id'
+    | '/campaigns/$id'
+    | '/applications/'
+    | '/campaigns/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApplicationsIdRoute: typeof ApplicationsIdRoute
+  CampaignsIdRoute: typeof CampaignsIdRoute
   ApplicationsIndexRoute: typeof ApplicationsIndexRoute
   CampaignsIndexRoute: typeof CampaignsIndexRoute
 }
@@ -99,12 +125,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CampaignsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/campaigns/$id': {
+      id: '/campaigns/$id'
+      path: '/campaigns/$id'
+      fullPath: '/campaigns/$id'
+      preLoaderRoute: typeof CampaignsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApplicationsIdRoute: ApplicationsIdRoute,
+  CampaignsIdRoute: CampaignsIdRoute,
   ApplicationsIndexRoute: ApplicationsIndexRoute,
   CampaignsIndexRoute: CampaignsIndexRoute,
 }
