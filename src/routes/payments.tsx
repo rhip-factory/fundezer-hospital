@@ -38,9 +38,9 @@ function Payments() {
     <PortalLayout title="Payments & wallet" subtitle="Closed-loop payouts from campaign wallets">
       <div className="grid gap-4 sm:grid-cols-3">
         {[
-          ["Received to date", naira(paid)],
-          ["Scheduled payouts", naira(scheduled)],
-          ["Held in campaign wallets", naira(held)],
+          ["Total bills paid to date", naira(paid)],
+          ["Pending Payments", naira(scheduled)],
+          ["Available Campaign Funds", naira(held)],
         ].map(([label, value]) => (
           <div key={label} className="card-elevated p-5">
             <p className="text-sm text-muted-foreground">{label}</p>
