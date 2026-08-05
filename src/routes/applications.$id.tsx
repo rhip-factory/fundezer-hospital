@@ -77,6 +77,7 @@ function ApplicationDetail() {
     investigation: "",
     procedure: "",
     admission: "",
+    rehabilitation: "",
     urgency: "urgent",
     recovery: "",
     costs: structuredClone(emptyCosts),
@@ -298,6 +299,14 @@ function ApplicationDetail() {
                     placeholder="e.g. 6 days"
                   />
                 </Field>
+                <Field label="Expected rehabilitation">
+                  <Input
+                    value={assessment.rehabilitation}
+                    disabled={submitted}
+                    onChange={(e) => setForm({ ...form, rehabilitation: e.target.value })}
+                    placeholder="e.g. 3 months physiotherapy"
+                  />
+                </Field>
                 <Field label="Urgency">
                   <Select
                     value={assessment.urgency}
@@ -403,6 +412,7 @@ function ApplicationDetail() {
                     label="Estimated timeline"
                     value={`${assessment.admission || "Admission TBC"} admission · recovery ${assessment.recovery || "TBC"}`}
                   />
+                  <PlanRow label="Rehabilitation" value={assessment.rehabilitation || "Not specified"} />
                   <PlanRow
                     label="Medication schedule"
                     value="Pre-treatment stabilisation, in-treatment therapy, 3-month post-treatment course"

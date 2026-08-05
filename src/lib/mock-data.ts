@@ -17,6 +17,7 @@ export type Assessment = {
   investigation: string;
   procedure: string;
   admission: string;
+  rehabilitation: string;
   urgency: Urgency;
   recovery: string;
   costs: CostEstimate;
@@ -200,6 +201,7 @@ export const applications: Application[] = [
       investigation: "X-ray right leg (AP/lateral), full blood count, clotting profile",
       procedure: "Open reduction and internal fixation with plate and screws",
       admission: "6 days",
+      rehabilitation: "3 months physiotherapy; weight-bearing from week 6",
       urgency: "urgent",
       recovery: "12–16 weeks with physiotherapy",
       costs: {
