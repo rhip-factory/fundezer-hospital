@@ -166,13 +166,14 @@ function ApplicationDetail() {
 
       <div className="grid gap-6 xl:grid-cols-3">
         <div className="space-y-6 xl:col-span-2">
-          <Tabs defaultValue="story">
+          <Tabs defaultValue="identity">
             <TabsList>
-              <TabsTrigger value="story">Patient story</TabsTrigger>
               <TabsTrigger value="identity">Identity</TabsTrigger>
+              <TabsTrigger value="story">Patient story</TabsTrigger>
               <TabsTrigger value="documents">Documents</TabsTrigger>
-              <TabsTrigger value="fraud">Fraud screening</TabsTrigger>
+              <TabsTrigger value="assessment">Hospital assessment</TabsTrigger>
             </TabsList>
+
 
             <TabsContent value="story">
               <Card>
@@ -232,36 +233,9 @@ function ApplicationDetail() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="fraud">
+            <TabsContent value="assessment">
               <Card>
-                <CardContent className="space-y-4 pt-6">
-                  <div className="flex items-center gap-3">
-                    <ShieldAlert className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="text-sm font-semibold">Risk score {app.riskScore}/100</p>
-                      <p className="text-xs text-muted-foreground">
-                        Duplicate stories, images, IDs, metadata and document forgery checks completed.
-                      </p>
-                    </div>
-                  </div>
-                  <Separator />
-                  {app.riskFlags.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No flags raised on this application.</p>
-                  ) : (
-                    <ul className="space-y-2 text-sm">
-                      {app.riskFlags.map((f) => (
-                        <li key={f} className="rounded-lg border border-destructive/30 bg-destructive/5 p-3">
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
 
-          <Card>
             <CardHeader>
               <CardTitle className="text-base">Hospital assessment</CardTitle>
             </CardHeader>
@@ -387,12 +361,43 @@ function ApplicationDetail() {
                   </Button>
                 </div>
               )}
-            </CardContent>
-          </Card>
+              </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
 
         <div className="space-y-6">
           <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <ShieldAlert className="h-4 w-4 text-primary" /> Fraud screening
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <p className="text-sm font-semibold">Risk score {app.riskScore}/100</p>
+                <p className="text-xs text-muted-foreground">
+                  Duplicate stories, images, IDs, metadata and document forgery checks completed.
+                </p>
+              </div>
+              <Separator />
+              {app.riskFlags.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No flags raised on this application.</p>
+              ) : (
+                <ul className="space-y-2 text-sm">
+                  {app.riskFlags.map((f) => (
+                    <li key={f} className="rounded-lg border border-destructive/30 bg-destructive/5 p-3">
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <Sparkles className="h-4 w-4 text-primary" /> AI preliminary treatment plan
