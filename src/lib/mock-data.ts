@@ -1,14 +1,12 @@
 export type Urgency = "routine" | "urgent" | "emergency";
 
 export type CostEstimate = {
-  laboratory: [number, number];
-  imaging: [number, number];
-  medicationBefore: [number, number];
-  medicationDuring: [number, number];
-  medicationAfter: [number, number];
+  diagnosis: [number, number];
+  investigation: [number, number];
   procedure: [number, number];
-  consumables: [number, number];
-  physiotherapy: [number, number];
+  admission: [number, number];
+  rehabilitation: [number, number];
+  recovery: [number, number];
   other: [number, number];
 };
 
@@ -75,27 +73,23 @@ export const HOSPITAL = {
 };
 
 export const emptyCosts: CostEstimate = {
-  laboratory: [0, 0],
-  imaging: [0, 0],
-  medicationBefore: [0, 0],
-  medicationDuring: [0, 0],
-  medicationAfter: [0, 0],
+  diagnosis: [0, 0],
+  investigation: [0, 0],
   procedure: [0, 0],
-  consumables: [0, 0],
-  physiotherapy: [0, 0],
+  admission: [0, 0],
+  rehabilitation: [0, 0],
+  recovery: [0, 0],
   other: [0, 0],
 };
 
 export const costLabels: Record<keyof CostEstimate, string> = {
-  laboratory: "Laboratory",
-  imaging: "Imaging (CT / MRI / X-ray)",
-  medicationBefore: "Medication — before treatment",
-  medicationDuring: "Medication — during treatment",
-  medicationAfter: "Medication — after (3 months)",
-  procedure: "Procedure",
-  consumables: "Consumables",
-  physiotherapy: "Physiotherapy",
-  other: "Other costs",
+  diagnosis: "Preliminary diagnostics",
+  investigation: "Recommended investigation",
+  procedure: "Recommended procedure",
+  admission: "Expected admission",
+  rehabilitation: "Expected rehabilitation",
+  recovery: "Expected recovery",
+  other: "Other Costs",
 };
 
 const docs = (extra: PatientDoc[] = []): PatientDoc[] => [
@@ -205,14 +199,12 @@ export const applications: Application[] = [
       urgency: "urgent",
       recovery: "12–16 weeks with physiotherapy",
       costs: {
-        laboratory: [60000, 95000],
-        imaging: [80000, 120000],
-        medicationBefore: [40000, 60000],
-        medicationDuring: [150000, 220000],
-        medicationAfter: [90000, 140000],
-        procedure: [1200000, 1600000],
-        consumables: [180000, 260000],
-        physiotherapy: [200000, 320000],
+        diagnosis: [100000, 155000],
+        investigation: [80000, 120000],
+        procedure: [1350000, 1820000],
+        admission: [180000, 260000],
+        rehabilitation: [200000, 320000],
+        recovery: [90000, 140000],
         other: [50000, 85000],
       },
     },
