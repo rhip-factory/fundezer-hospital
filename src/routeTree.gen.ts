@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PatientsRouteImport } from './routes/patients'
 import { Route as PaymentsRouteImport } from './routes/payments'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as ApplicationsIndexRouteImport } from './routes/applications.index'
@@ -21,11 +20,6 @@ import { Route as CampaignsIdRouteImport } from './routes/campaigns.$id'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PatientsRoute = PatientsRouteImport.update({
-  id: '/patients',
-  path: '/patients',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PaymentsRoute = PaymentsRouteImport.update({
@@ -61,7 +55,6 @@ const CampaignsIdRoute = CampaignsIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/patients': typeof PatientsRoute
   '/payments': typeof PaymentsRoute
   '/reports': typeof ReportsRoute
   '/applications/$id': typeof ApplicationsIdRoute
@@ -71,7 +64,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/patients': typeof PatientsRoute
   '/payments': typeof PaymentsRoute
   '/reports': typeof ReportsRoute
   '/applications/$id': typeof ApplicationsIdRoute
@@ -82,7 +74,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/patients': typeof PatientsRoute
   '/payments': typeof PaymentsRoute
   '/reports': typeof ReportsRoute
   '/applications/$id': typeof ApplicationsIdRoute
@@ -94,7 +85,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/patients'
     | '/payments'
     | '/reports'
     | '/applications/$id'
@@ -104,7 +94,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/patients'
     | '/payments'
     | '/reports'
     | '/applications/$id'
@@ -114,7 +103,6 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/patients'
     | '/payments'
     | '/reports'
     | '/applications/$id'
@@ -125,7 +113,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  PatientsRoute: typeof PatientsRoute
   PaymentsRoute: typeof PaymentsRoute
   ReportsRoute: typeof ReportsRoute
   ApplicationsIdRoute: typeof ApplicationsIdRoute
@@ -141,13 +128,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/patients': {
-      id: '/patients'
-      path: '/patients'
-      fullPath: '/patients'
-      preLoaderRoute: typeof PatientsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/payments': {
@@ -197,7 +177,6 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  PatientsRoute: PatientsRoute,
   PaymentsRoute: PaymentsRoute,
   ReportsRoute: ReportsRoute,
   ApplicationsIdRoute: ApplicationsIdRoute,
@@ -208,3 +187,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

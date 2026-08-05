@@ -3,7 +3,6 @@ import {
   LayoutDashboard,
   ClipboardList,
   HeartHandshake,
-  Users,
   Wallet,
   BarChart3,
   BadgeCheck,
@@ -21,7 +20,6 @@ const nav: { to: string; label: string; icon: LucideIcon }[] = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/applications", label: "Applications", icon: ClipboardList },
   { to: "/campaigns", label: "Campaigns", icon: HeartHandshake },
-  { to: "/patients", label: "Patients", icon: Users },
   { to: "/payments", label: "Payments & wallet", icon: Wallet },
   { to: "/reports", label: "Reports", icon: BarChart3 },
 ];
