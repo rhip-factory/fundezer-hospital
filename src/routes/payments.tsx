@@ -48,6 +48,33 @@ function Payments() {
     0,
   );
 
+  const [period, setPeriod] = useState<(typeof periods)[number]["key"]>("all");
+
+  const paidRows = rows.filter((r) => r.status === "paid");
+
+  const periodRows = useMemo(() => {
+    if (period === "all") return paidRows;
+    const days = Number(period);
+    const cutoff = Date.now() - days * 86400000;
+    return paidRows.filter((r) => {
+      const d = parseDate(r.date);
+      return d ? d.getTime() >= cutoff : false;
+    });
+  }, [paidRows, period]);
+
+  const periodTotal = periodRows.reduce((s, r) => s + r.amount, 0);
+
+  const perPatient = useMemo(() => {
+    const map = new Map<string, { patient: string; total: number; count: number }>();
+    for (const r of periodRows) {
+      const e = map.get(r.patient) ?? { patient: r.patient, total: 0, count: 0 };
+      e.total += r.amount;
+      e.count += 1;
+      map.set(r.patient, e);
+    }
+    return [...map.values()].sort((a, b) => b.total - a.total);
+  }, [periodRows]);
+
   return (
     <PortalLayout title="Payments & wallet" subtitle="Closed-loop payouts from campaign wallets">
       <div className="grid gap-4 sm:grid-cols-3">
@@ -62,6 +89,51 @@ function Payments() {
           </div>
         ))}
       </div>
+
+      <Card className="mt-6">
+        <CardHeader className="flex flex-wrap items-center justify-between gap-3">
+          <CardTitle className="text-base">Total bills paid per period</CardTitle>
+          <div className="flex flex-wrap gap-2">
+            {periods.map((p) => (
+              <Button
+                key={p.key}
+                size="sm"
+                variant={period === p.key ? "default" : "outline"}
+                onClick={() => setPeriod(p.key)}
+              >
+                {p.label}
+              </Button>
+            ))}
+          </div>
+        </CardHeader>
+        <CardContent>
+          <p className="text-3xl font-extrabold">{naira(periodTotal)}</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {periodRows.length} milestone payment{periodRows.length === 1 ? "" : "s"} settled in this period.
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="text-base">Total bills paid per patient</CardTitle>
+        </CardHeader>
+        <CardContent className="divide-y divide-border p-0">
+          {perPatient.length === 0 && (
+            <p className="p-6 text-sm text-muted-foreground">No payments settled in this period.</p>
+          )}
+          {perPatient.map((p) => (
+            <div key={p.patient} className="flex flex-wrap items-center gap-4 p-5">
+              <p className="min-w-44 flex-1 font-semibold">{p.patient}</p>
+              <p className="min-w-32 text-sm text-muted-foreground">
+                {p.count} payment{p.count === 1 ? "" : "s"}
+              </p>
+              <p className="min-w-28 font-semibold">{naira(p.total)}</p>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
 
       <Card className="mt-6">
         <CardHeader>
