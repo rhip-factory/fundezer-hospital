@@ -1,8 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
 import { PortalLayout, StatusBadge } from "@/components/portal-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { usePortalState } from "@/lib/store";
 import { naira } from "@/lib/mock-data";
+
+const periods = [
+  { key: "30", label: "Last 30 days" },
+  { key: "90", label: "Last 90 days" },
+  { key: "365", label: "Last 12 months" },
+  { key: "all", label: "All time" },
+] as const;
+
+const parseDate = (s: string) => {
+  const d = new Date(s.replace(/^Due\s+/i, ""));
+  return isNaN(d.getTime()) ? null : d;
+};
 
 export const Route = createFileRoute("/payments")({
   head: () => ({
