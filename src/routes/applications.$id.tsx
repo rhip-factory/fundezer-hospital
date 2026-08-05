@@ -412,6 +412,7 @@ function ApplicationDetail() {
                     label="Estimated timeline"
                     value={`${assessment.admission || "Admission TBC"} admission · recovery ${assessment.recovery || "TBC"}`}
                   />
+                  <PlanRow label="Rehabilitation" value={assessment.rehabilitation || "Not specified"} />
                   <PlanRow
                     label="Medication schedule"
                     value="Pre-treatment stabilisation, in-treatment therapy, 3-month post-treatment course"
