@@ -233,36 +233,9 @@ function ApplicationDetail() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="fraud">
+            <TabsContent value="assessment">
               <Card>
-                <CardContent className="space-y-4 pt-6">
-                  <div className="flex items-center gap-3">
-                    <ShieldAlert className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="text-sm font-semibold">Risk score {app.riskScore}/100</p>
-                      <p className="text-xs text-muted-foreground">
-                        Duplicate stories, images, IDs, metadata and document forgery checks completed.
-                      </p>
-                    </div>
-                  </div>
-                  <Separator />
-                  {app.riskFlags.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No flags raised on this application.</p>
-                  ) : (
-                    <ul className="space-y-2 text-sm">
-                      {app.riskFlags.map((f) => (
-                        <li key={f} className="rounded-lg border border-destructive/30 bg-destructive/5 p-3">
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
 
-          <Card>
             <CardHeader>
               <CardTitle className="text-base">Hospital assessment</CardTitle>
             </CardHeader>
