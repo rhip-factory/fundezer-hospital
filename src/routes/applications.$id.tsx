@@ -299,6 +299,14 @@ function ApplicationDetail() {
                     placeholder="e.g. 6 days"
                   />
                 </Field>
+                <Field label="Expected rehabilitation">
+                  <Input
+                    value={assessment.rehabilitation}
+                    disabled={submitted}
+                    onChange={(e) => setForm({ ...form, rehabilitation: e.target.value })}
+                    placeholder="e.g. 3 months physiotherapy"
+                  />
+                </Field>
                 <Field label="Urgency">
                   <Select
                     value={assessment.urgency}
