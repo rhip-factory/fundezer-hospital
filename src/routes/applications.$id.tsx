@@ -166,13 +166,14 @@ function ApplicationDetail() {
 
       <div className="grid gap-6 xl:grid-cols-3">
         <div className="space-y-6 xl:col-span-2">
-          <Tabs defaultValue="story">
+          <Tabs defaultValue="identity">
             <TabsList>
-              <TabsTrigger value="story">Patient story</TabsTrigger>
               <TabsTrigger value="identity">Identity</TabsTrigger>
+              <TabsTrigger value="story">Patient story</TabsTrigger>
               <TabsTrigger value="documents">Documents</TabsTrigger>
-              <TabsTrigger value="fraud">Fraud screening</TabsTrigger>
+              <TabsTrigger value="assessment">Hospital assessment</TabsTrigger>
             </TabsList>
+
 
             <TabsContent value="story">
               <Card>
