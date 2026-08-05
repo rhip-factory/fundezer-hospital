@@ -77,6 +77,7 @@ function ApplicationDetail() {
     investigation: "",
     procedure: "",
     admission: "",
+    rehabilitation: "",
     urgency: "urgent",
     recovery: "",
     costs: structuredClone(emptyCosts),
