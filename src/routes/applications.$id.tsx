@@ -84,6 +84,11 @@ function ApplicationDetail() {
   });
   const [rejectReason, setRejectReason] = useState("");
 
+  const accept = () => {
+    updateApplication(id, { status: "assessed" });
+    toast.success("Application accepted — ready for campaign approval.");
+  };
+
   if (!app) {
     return (
       <PortalLayout title="Application not found">
@@ -246,7 +251,7 @@ function ApplicationDetail() {
                     value={assessment.diagnosis}
                     disabled={submitted}
                     onChange={(e) => setForm({ ...form, diagnosis: e.target.value })}
-                    placeholder="Confirmed clinical diagnosis"
+                    placeholder="Clinical Suspicion"
                   />
                 </Field>
                 <Field label="Recommended investigation">
@@ -466,6 +471,9 @@ function ApplicationDetail() {
                 <>
                   <Button className="w-full" disabled={!submitted} onClick={approve}>
                     <CheckCircle2 className="mr-1 h-4 w-4" /> Approve & publish campaign
+                  </Button>
+                  <Button variant="secondary" className="w-full" onClick={accept}>
+                    <CheckCircle2 className="mr-1 h-4 w-4" /> Accept application
                   </Button>
                   <div className="space-y-2">
                     <Label className="text-xs text-muted-foreground">Reason (required to reject)</Label>
