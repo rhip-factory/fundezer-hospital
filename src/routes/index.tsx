@@ -39,8 +39,8 @@ function Dashboard() {
   const stats = [
     { label: "Pending reviews", value: String(pending.length), icon: ClipboardList, hint: "Awaiting hospital assessment" },
     { label: "Active campaigns", value: String(active.length), icon: HeartHandshake, hint: "Currently raising funds" },
-    { label: "Funds raised", value: naira(raised), icon: TrendingUp, hint: "Across all campaigns" },
-    { label: "Paid to hospital", value: naira(received), icon: Wallet, hint: "Released on milestones" },
+    { label: "Funds Needed", value: naira(raised), icon: TrendingUp, hint: "Across all campaigns" },
+    { label: "Funds Raised", value: naira(received), icon: Wallet, hint: "Released on milestones" },
   ];
 
   return (
