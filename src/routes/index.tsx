@@ -44,7 +44,7 @@ function Dashboard() {
   ];
 
   return (
-    <PortalLayout title="Dashboard" subtitle="Alliance Hospital · Abuja pilot">
+    <PortalLayout title="Dashboard" subtitle="NMSL Hospital">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((s) => (
           <div key={s.label} className="card-elevated p-5">

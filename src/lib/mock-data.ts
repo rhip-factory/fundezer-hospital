@@ -66,7 +66,7 @@ export type Campaign = {
 };
 
 export const HOSPITAL = {
-  name: "NISA PREMIER HOSPITAL",
+  name: "NMSL Hospital",
   city: "Abuja pilot",
   verified: true,
   reviewer: "Dr. Amaka Eze",
