@@ -58,10 +58,10 @@ export type Payment = {
   amount: number;
   date: string;
   status: PaymentStatus;
-  note?: string;
-  stage?: string;
-  document?: string;
-  declineReason?: string;
+  note?: string | undefined;
+  stage?: string | undefined;
+  document?: string | undefined;
+  declineReason?: string | undefined;
 };
 
 export type Campaign = {
