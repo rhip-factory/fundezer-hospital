@@ -83,7 +83,7 @@ export const emptyCosts: CostEstimate = {
 };
 
 export const costLabels: Record<keyof CostEstimate, string> = {
-  diagnosis: "Preliminary diagnostics",
+  diagnosis: "Preliminary diagnosis",
   investigation: "Recommended investigation",
   procedure: "Recommended procedure",
   admission: "Expected admission",
