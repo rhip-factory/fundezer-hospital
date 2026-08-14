@@ -2,8 +2,11 @@ import { useSyncExternalStore } from "react";
 import {
   applications as seedApps,
   campaigns as seedCampaigns,
+  today,
   type Application,
   type Campaign,
+  type Payment,
+  type PaymentStatus,
 } from "./mock-data";
 
 type State = { applications: Application[]; campaigns: Campaign[] };
