@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "1f923fa2-43e0-4a34-9954-98d7552f8c73",
-  "project_id": "4bee0358-8265-46eb-b5dc-49168ca726da",
-  "url": "/__l5e/assets-v1/1f923fa2-43e0-4a34-9954-98d7552f8c73/fundezer-icon.png",
-  "r2_key": "a/v1/4bee0358-8265-46eb-b5dc-49168ca726da/1f923fa2-43e0-4a34-9954-98d7552f8c73/fundezer-icon.png",
-  "original_filename": "fundezer-icon.png",
-  "size": 59916,
   "content_type": "image/png",
-  "created_at": "2026-08-04T09:26:21Z"
+  "created_at": "2026-08-04T09:26:21Z",
+  "original_filename": "fundezer-icon.png",
+  "project_id": "64e04b7b-522b-4db2-9f15-9836202fdee9",
+  "r2_key": "a/v1/64e04b7b-522b-4db2-9f15-9836202fdee9/1f923fa2-43e0-4a34-9954-98d7552f8c73/fundezer-icon.png",
+  "size": 59916,
+  "url": "/__l5e/assets-v1/1f923fa2-43e0-4a34-9954-98d7552f8c73/fundezer-icon.png",
+  "version": 1
 }
