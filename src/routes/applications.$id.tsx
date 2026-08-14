@@ -246,7 +246,7 @@ function ApplicationDetail() {
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="PRELIMINARY DIAGNOSTICS">
+                <Field label="PRELIMINARY DIAGNOSIS">
                   <Input
                     value={assessment.diagnosis}
                     disabled={submitted}
