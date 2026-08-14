@@ -50,6 +50,20 @@ export type Application = {
 
 export type Donation = { donor: string; amount: number; date: string };
 
+export type PaymentStatus = "requested" | "approved" | "scheduled" | "paid" | "declined";
+
+export type Payment = {
+  id: string;
+  milestone: string;
+  amount: number;
+  date: string;
+  status: PaymentStatus;
+  note?: string;
+  stage?: string;
+  document?: string;
+  declineReason?: string;
+};
+
 export type Campaign = {
   id: string;
   patientName: string;
