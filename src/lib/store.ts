@@ -53,7 +53,13 @@ export function updateCampaign(id: string, patch: Partial<Campaign>) {
 
 export function requestFunds(
   campaignId: string,
-  payload: { milestone: string; amount: number; stage?: string; note?: string; document?: string },
+  payload: {
+    milestone: string;
+    amount: number;
+    stage?: string | undefined;
+    note?: string | undefined;
+    document?: string | undefined;
+  },
 ) {
   const payment: Payment = {
     id: "PAY-" + Math.floor(1000 + Math.random() * 9000),
