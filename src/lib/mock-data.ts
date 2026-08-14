@@ -306,3 +306,16 @@ export const costTotals = (c: CostEstimate) =>
   );
 
 export const recommendedGoal = (max: number) => Math.round((max * 1.2) / 10000) * 10000;
+
+export const RESERVED_STATUSES: PaymentStatus[] = ["requested", "approved", "scheduled"];
+
+export const campaignWallet = (c: Campaign) => {
+  const paid = c.payments.filter((p) => p.status === "paid").reduce((s, p) => s + p.amount, 0);
+  const reserved = c.payments
+    .filter((p) => RESERVED_STATUSES.includes(p.status))
+    .reduce((s, p) => s + p.amount, 0);
+  return { paid, reserved, available: Math.max(0, c.raised - paid - reserved) };
+};
+
+export const today = () =>
+  new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });

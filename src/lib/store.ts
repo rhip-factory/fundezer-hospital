@@ -47,3 +47,61 @@ export function updateCampaign(id: string, patch: Partial<Campaign>) {
   };
   emit();
 }
+
+export function requestFunds(
+  campaignId: string,
+  payload: { milestone: string; amount: number; stage?: string; note?: string; document?: string },
+) {
+  const payment: Payment = {
+    id: "PAY-" + Math.floor(1000 + Math.random() * 9000),
+    milestone: payload.milestone,
+    amount: payload.amount,
+    date: today(),
+    status: "requested",
+    stage: payload.stage,
+    note: payload.note,
+    document: payload.document,
+  };
+  state = {
+    ...state,
+    campaigns: state.campaigns.map((c) =>
+      c.id === campaignId ? { ...c, payments: [payment, ...c.payments] } : c,
+    ),
+  };
+  emit();
+  return payment;
+}
+
+export function setPaymentStatus(
+  campaignId: string,
+  paymentId: string,
+  status: PaymentStatus,
+  reason?: string,
+) {
+  state = {
+    ...state,
+    campaigns: state.campaigns.map((c) =>
+      c.id === campaignId
+        ? {
+            ...c,
+            payments: c.payments.map((p) =>
+              p.id === paymentId
+                ? { ...p, status, declineReason: reason, date: status === "paid" ? today() : p.date }
+                : p,
+            ),
+          }
+        : c,
+    ),
+  };
+  emit();
+}
+
+export function withdrawFundRequest(campaignId: string, paymentId: string) {
+  state = {
+    ...state,
+    campaigns: state.campaigns.map((c) =>
+      c.id === campaignId ? { ...c, payments: c.payments.filter((p) => p.id !== paymentId) } : c,
+    ),
+  };
+  emit();
+}
