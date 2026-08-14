@@ -50,6 +50,20 @@ export type Application = {
 
 export type Donation = { donor: string; amount: number; date: string };
 
+export type PaymentStatus = "requested" | "approved" | "scheduled" | "paid" | "declined";
+
+export type Payment = {
+  id: string;
+  milestone: string;
+  amount: number;
+  date: string;
+  status: PaymentStatus;
+  note?: string | undefined;
+  stage?: string | undefined;
+  document?: string | undefined;
+  declineReason?: string | undefined;
+};
+
 export type Campaign = {
   id: string;
   patientName: string;
@@ -62,7 +76,7 @@ export type Campaign = {
   treatmentStage: number;
   donations: Donation[];
   updates: { date: string; note: string }[];
-  payments: { milestone: string; amount: number; date: string; status: "paid" | "scheduled" }[];
+  payments: Payment[];
 };
 
 export const HOSPITAL = {
@@ -234,9 +248,9 @@ export const campaigns: Campaign[] = [
       { date: "20 Jul 2026", note: "Pre-operative investigations concluded, surgery scheduled." },
     ],
     payments: [
-      { milestone: "Investigations & admission", amount: 420000, date: "18 Jul 2026", status: "paid" },
-      { milestone: "Surgical procedure", amount: 1400000, date: "27 Jul 2026", status: "paid" },
-      { milestone: "Post-operative care & physiotherapy", amount: 780000, date: "Due 20 Aug 2026", status: "scheduled" },
+      { id: "PAY-701", milestone: "Investigations & admission", amount: 420000, date: "18 Jul 2026", status: "paid" },
+      { id: "PAY-702", milestone: "Surgical procedure", amount: 1400000, date: "27 Jul 2026", status: "paid" },
+      { id: "PAY-703", milestone: "Post-operative care & physiotherapy", amount: 780000, date: "Due 20 Aug 2026", status: "scheduled" },
     ],
   },
   {
@@ -258,9 +272,9 @@ export const campaigns: Campaign[] = [
       { date: "1 Jul 2026", note: "Second eye operated, recovery on track." },
     ],
     payments: [
-      { milestone: "Pre-op assessment", amount: 180000, date: "22 Jun 2026", status: "paid" },
-      { milestone: "Bilateral surgery", amount: 640000, date: "30 Jun 2026", status: "paid" },
-      { milestone: "Follow-up review", amount: 160000, date: "8 Jul 2026", status: "paid" },
+      { id: "PAY-704", milestone: "Pre-op assessment", amount: 180000, date: "22 Jun 2026", status: "paid" },
+      { id: "PAY-705", milestone: "Bilateral surgery", amount: 640000, date: "30 Jun 2026", status: "paid" },
+      { id: "PAY-706", milestone: "Follow-up review", amount: 160000, date: "8 Jul 2026", status: "paid" },
     ],
   },
   {
@@ -278,7 +292,7 @@ export const campaigns: Campaign[] = [
       { donor: "Ayo T.", amount: 75000, date: "31 Jul 2026" },
     ],
     updates: [{ date: "27 Jun 2026", note: "Campaign published and verified by Alliance Hospital." }],
-    payments: [{ milestone: "Admission deposit", amount: 200000, date: "1 Jul 2026", status: "paid" }],
+    payments: [{ id: "PAY-707", milestone: "Admission deposit", amount: 200000, date: "1 Jul 2026", status: "paid" }],
   },
 ];
 
@@ -292,3 +306,16 @@ export const costTotals = (c: CostEstimate) =>
   );
 
 export const recommendedGoal = (max: number) => Math.round((max * 1.2) / 10000) * 10000;
+
+export const RESERVED_STATUSES: PaymentStatus[] = ["requested", "approved", "scheduled"];
+
+export const campaignWallet = (c: Campaign) => {
+  const paid = c.payments.filter((p) => p.status === "paid").reduce((s, p) => s + p.amount, 0);
+  const reserved = c.payments
+    .filter((p) => RESERVED_STATUSES.includes(p.status))
+    .reduce((s, p) => s + p.amount, 0);
+  return { paid, reserved, available: Math.max(0, c.raised - paid - reserved) };
+};
+
+export const today = () =>
+  new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });

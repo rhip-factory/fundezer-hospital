@@ -147,6 +147,8 @@ export function StatusBadge({ status }: { status: string }) {
     completed: "bg-success/15 text-success border-success/30",
     paid: "bg-success/15 text-success border-success/30",
     scheduled: "bg-secondary text-secondary-foreground border-border",
+    requested: "bg-warning/15 text-warning-foreground border-warning/30",
+    declined: "bg-destructive/10 text-destructive border-destructive/30",
   };
   const label: Record<string, string> = {
     pending: "Pending review",
@@ -158,6 +160,8 @@ export function StatusBadge({ status }: { status: string }) {
     completed: "Completed",
     paid: "Paid",
     scheduled: "Scheduled",
+    requested: "Requested",
+    declined: "Declined",
   };
   return (
     <Badge variant="outline" className={cn("font-medium capitalize", map[status])}>

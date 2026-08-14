@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { naira } from "@/lib/mock-data";
+import { campaignWallet, naira } from "@/lib/mock-data";
+import { RequestFundsDialog } from "@/components/request-funds-dialog";
 import { updateCampaign, usePortalState } from "@/lib/store";
 
 const stages = ["Campaign live", "Investigations", "Procedure", "Recovery", "Completed"];
@@ -48,8 +49,7 @@ function CampaignDetail() {
   }
 
   const pct = Math.min(100, Math.round((c.raised / c.goal) * 100));
-  const paid = c.payments.filter((p) => p.status === "paid").reduce((s, p) => s + p.amount, 0);
-  const available = c.raised - paid;
+  const { paid, reserved, available } = campaignWallet(c);
 
   const postUpdate = () => {
     if (!note.trim()) {
@@ -199,6 +199,7 @@ function CampaignDetail() {
               <Row label="Campaign goal" value={naira(c.goal)} />
               <Row label="Funds raised" value={naira(c.raised)} />
               <Row label="Payments made" value={naira(paid)} />
+              <Row label="Reserved by requests" value={naira(reserved)} />
               <Separator />
               <Row label="Available balance" value={naira(available)} strong />
               <Row label="Remaining to goal" value={naira(Math.max(0, c.goal - c.raised))} />
@@ -206,6 +207,7 @@ function CampaignDetail() {
                 Funds are held in the campaign wallet and released directly to the hospital on approved treatment
                 milestones.
               </p>
+              <RequestFundsDialog campaign={c} available={available} stages={stages} />
             </CardContent>
           </Card>
 
@@ -218,13 +220,20 @@ function CampaignDetail() {
                 <p className="text-sm text-muted-foreground">No milestone payments released yet.</p>
               )}
               {c.payments.map((p) => (
-                <div key={p.milestone} className="rounded-lg border border-border p-3">
+                <div key={p.id} className="rounded-lg border border-border p-3">
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-sm font-medium">{p.milestone}</p>
                     <StatusBadge status={p.status} />
                   </div>
                   <p className="mt-1 text-sm font-semibold">{naira(p.amount)}</p>
                   <p className="text-xs text-muted-foreground">{p.date}</p>
+                  {p.note && <p className="mt-1 text-xs text-muted-foreground">{p.note}</p>}
+                  {p.document && (
+                    <p className="mt-1 text-xs text-muted-foreground">Attached: {p.document}</p>
+                  )}
+                  {p.declineReason && (
+                    <p className="mt-1 text-xs text-destructive">Declined: {p.declineReason}</p>
+                  )}
                 </div>
               ))}
             </CardContent>
