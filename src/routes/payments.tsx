@@ -3,8 +3,9 @@ import { useMemo, useState } from "react";
 import { PortalLayout, StatusBadge } from "@/components/portal-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { usePortalState } from "@/lib/store";
-import { naira } from "@/lib/mock-data";
+import { setPaymentStatus, usePortalState, withdrawFundRequest } from "@/lib/store";
+import { toast } from "sonner";
+import { campaignWallet, naira } from "@/lib/mock-data";
 
 const periods = [
   { key: "30", label: "Last 30 days" },
@@ -42,11 +43,13 @@ function Payments() {
     c.payments.map((p) => ({ ...p, campaign: c.id, patient: c.patientName })),
   );
   const paid = rows.filter((r) => r.status === "paid").reduce((s, r) => s + r.amount, 0);
-  const scheduled = rows.filter((r) => r.status === "scheduled").reduce((s, r) => s + r.amount, 0);
-  const held = campaigns.reduce(
-    (s, c) => s + (c.raised - c.payments.filter((p) => p.status === "paid").reduce((x, p) => x + p.amount, 0)),
-    0,
+  const scheduled = rows
+    .filter((r) => r.status === "scheduled" || r.status === "approved" || r.status === "requested")
+    .reduce((s, r) => s + r.amount, 0);
+  const requests = rows.filter(
+    (r) => r.status === "requested" || r.status === "approved" || r.status === "declined",
   );
+  const held = campaigns.reduce((s, c) => s + campaignWallet(c).available, 0);
 
   const [period, setPeriod] = useState<(typeof periods)[number]["key"]>("all");
 
@@ -137,11 +140,87 @@ function Payments() {
 
       <Card className="mt-6">
         <CardHeader>
+          <CardTitle className="text-base">Fund requests</CardTitle>
+        </CardHeader>
+        <CardContent className="divide-y divide-border p-0">
+          {requests.length === 0 && (
+            <p className="p-6 text-sm text-muted-foreground">No open fund requests.</p>
+          )}
+          {requests.map((r) => (
+            <div key={r.id} className="flex flex-wrap items-center gap-4 p-5">
+              <div className="min-w-44 flex-1">
+                <p className="font-semibold">{r.milestone}</p>
+                <p className="text-sm text-muted-foreground">
+                  {r.patient} · {r.campaign} · {r.date}
+                </p>
+                {r.document && (
+                  <p className="text-xs text-muted-foreground">Attached: {r.document}</p>
+                )}
+                {r.declineReason && (
+                  <p className="text-xs text-destructive">Declined: {r.declineReason}</p>
+                )}
+              </div>
+              <p className="min-w-28 font-semibold">{naira(r.amount)}</p>
+              <StatusBadge status={r.status} />
+              <div className="flex flex-wrap gap-2">
+                {r.status === "requested" && (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setPaymentStatus(r.campaign, r.id, "approved");
+                        toast.success("Fund request approved.");
+                      }}
+                    >
+                      Mark approved
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setPaymentStatus(r.campaign, r.id, "declined", "Supporting bill required.");
+                        toast.success("Fund request declined.");
+                      }}
+                    >
+                      Decline
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        withdrawFundRequest(r.campaign, r.id);
+                        toast.success("Fund request withdrawn.");
+                      }}
+                    >
+                      Withdraw
+                    </Button>
+                  </>
+                )}
+                {r.status === "approved" && (
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setPaymentStatus(r.campaign, r.id, "paid");
+                      toast.success("Payment released to the hospital.");
+                    }}
+                  >
+                    Mark paid
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      <Card className="mt-6">
+        <CardHeader>
           <CardTitle className="text-base">Milestone payment history</CardTitle>
         </CardHeader>
         <CardContent className="divide-y divide-border p-0">
-          {rows.map((r, i) => (
-            <div key={i} className="flex flex-wrap items-center gap-4 p-5">
+          {rows.map((r) => (
+            <div key={r.id} className="flex flex-wrap items-center gap-4 p-5">
               <div className="min-w-44 flex-1">
                 <p className="font-semibold">{r.milestone}</p>
                 <p className="text-sm text-muted-foreground">
