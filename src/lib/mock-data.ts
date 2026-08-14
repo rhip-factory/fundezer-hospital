@@ -62,7 +62,7 @@ export type Campaign = {
   treatmentStage: number;
   donations: Donation[];
   updates: { date: string; note: string }[];
-  payments: { milestone: string; amount: number; date: string; status: "paid" | "scheduled" }[];
+  payments: Payment[];
 };
 
 export const HOSPITAL = {
