@@ -14,7 +14,6 @@ import logo from "@/assets/fundezer-icon.png.asset.json";
 import { HOSPITAL } from "@/lib/mock-data";
 import { usePortalState } from "@/lib/store";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const nav: { to: string; label: string; icon: LucideIcon }[] = [
