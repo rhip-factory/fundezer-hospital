@@ -42,7 +42,7 @@ export function RequestFundsDialog({
 
   const value = Number(amount.replace(/\D/g, "")) || 0;
 
-  const submit = () => {
+  const submit = async () => {
     if (milestone.trim().length < 3) {
       toast.error("Describe the milestone or purpose of this request.");
       return;
@@ -55,19 +55,23 @@ export function RequestFundsDialog({
       toast.error(`Amount exceeds the available balance of ${naira(available)}.`);
       return;
     }
-    requestFunds(campaign.id, {
-      milestone: milestone.trim().slice(0, 120),
-      amount: value,
-      stage,
-      note: note.trim().slice(0, 500) || undefined,
-      document: document.trim().slice(0, 120) || undefined,
-    });
-    toast.success("Fund request submitted to FundEzer for approval.");
-    setOpen(false);
-    setMilestone("");
-    setAmount("");
-    setNote("");
-    setDocument("");
+    try {
+      await requestFunds(campaign.id, {
+        milestone: milestone.trim().slice(0, 120),
+        amount: value,
+        stage,
+        note: note.trim().slice(0, 500) || undefined,
+        document: document.trim().slice(0, 120) || undefined,
+      });
+      toast.success("Fund request submitted to FundEzer for approval.");
+      setOpen(false);
+      setMilestone("");
+      setAmount("");
+      setNote("");
+      setDocument("");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to submit request.");
+    }
   };
 
   return (

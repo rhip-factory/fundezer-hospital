@@ -14,6 +14,7 @@ import logo from "@/assets/fundezer-icon.png.asset.json";
 import { HOSPITAL } from "@/lib/mock-data";
 import { usePortalState } from "@/lib/store";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const nav: { to: string; label: string; icon: LucideIcon }[] = [
@@ -115,6 +116,12 @@ export function PortalLayout({
                   <p className="text-xs text-muted-foreground">Hospital reviewer</p>
                 </div>
               </div>
+              <Link
+                to="/auth"
+                className="inline-flex h-8 items-center justify-center rounded-md border border-input bg-background px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                Sign in
+              </Link>
             </div>
           </div>
           <nav className="flex gap-1 overflow-x-auto border-t border-border px-4 py-2 lg:hidden">

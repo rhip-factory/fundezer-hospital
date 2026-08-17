@@ -51,17 +51,21 @@ function CampaignDetail() {
   const pct = Math.min(100, Math.round((c.raised / c.goal) * 100));
   const { paid, reserved, available } = campaignWallet(c);
 
-  const postUpdate = () => {
+  const postUpdate = async () => {
     if (!note.trim()) {
       toast.error("Write an update before posting.");
       return;
     }
-    updateCampaign(c.id, {
-      updates: [{ date: "4 Aug 2026", note }, ...c.updates],
-      treatmentStage: Math.min(stages.length - 1, c.treatmentStage + 1),
-    });
-    setNote("");
-    toast.success("Treatment update posted — donors notified.");
+    try {
+      await updateCampaign(c.id, {
+        updates: [{ date: "4 Aug 2026", note }, ...c.updates],
+        treatmentStage: Math.min(stages.length - 1, c.treatmentStage + 1),
+      });
+      setNote("");
+      toast.success("Treatment update posted — donors notified.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to post update.");
+    }
   };
 
   return (
@@ -155,9 +159,13 @@ function CampaignDetail() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => {
-                          updateCampaign(c.id, { status: "completed", treatmentStage: stages.length - 1 });
-                          toast.success("Campaign closed.");
+                        onClick={async () => {
+                          try {
+                            await updateCampaign(c.id, { status: "completed", treatmentStage: stages.length - 1 });
+                            toast.success("Campaign closed.");
+                          } catch (err) {
+                            toast.error(err instanceof Error ? err.message : "Failed to close campaign.");
+                          }
                         }}
                       >
                         Close campaign
