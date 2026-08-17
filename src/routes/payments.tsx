@@ -168,9 +168,13 @@ function Payments() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => {
-                        setPaymentStatus(r.campaign, r.id, "approved");
-                        toast.success("Fund request approved.");
+                      onClick={async () => {
+                        try {
+                          await setPaymentStatus(r.campaign, r.id, "approved");
+                          toast.success("Fund request approved.");
+                        } catch (err) {
+                          toast.error(err instanceof Error ? err.message : "Failed to approve request.");
+                        }
                       }}
                     >
                       Mark approved
@@ -178,9 +182,13 @@ function Payments() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => {
-                        setPaymentStatus(r.campaign, r.id, "declined", "Supporting bill required.");
-                        toast.success("Fund request declined.");
+                      onClick={async () => {
+                        try {
+                          await setPaymentStatus(r.campaign, r.id, "declined", "Supporting bill required.");
+                          toast.success("Fund request declined.");
+                        } catch (err) {
+                          toast.error(err instanceof Error ? err.message : "Failed to decline request.");
+                        }
                       }}
                     >
                       Decline
@@ -188,9 +196,13 @@ function Payments() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => {
-                        withdrawFundRequest(r.campaign, r.id);
-                        toast.success("Fund request withdrawn.");
+                      onClick={async () => {
+                        try {
+                          await withdrawFundRequest(r.campaign, r.id);
+                          toast.success("Fund request withdrawn.");
+                        } catch (err) {
+                          toast.error(err instanceof Error ? err.message : "Failed to withdraw request.");
+                        }
                       }}
                     >
                       Withdraw
@@ -200,9 +212,13 @@ function Payments() {
                 {r.status === "approved" && (
                   <Button
                     size="sm"
-                    onClick={() => {
-                      setPaymentStatus(r.campaign, r.id, "paid");
-                      toast.success("Payment released to the hospital.");
+                    onClick={async () => {
+                      try {
+                        await setPaymentStatus(r.campaign, r.id, "paid");
+                        toast.success("Payment released to the hospital.");
+                      } catch (err) {
+                        toast.error(err instanceof Error ? err.message : "Failed to mark paid.");
+                      }
                     }}
                   >
                     Mark paid

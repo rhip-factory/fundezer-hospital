@@ -84,9 +84,13 @@ function ApplicationDetail() {
   });
   const [rejectReason, setRejectReason] = useState("");
 
-  const accept = () => {
-    updateApplication(id, { status: "assessed" });
-    toast.success("Application accepted — ready for campaign approval.");
+  const accept = async () => {
+    try {
+      await updateApplication(id, { status: "assessed" });
+      toast.success("Application accepted — ready for campaign approval.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to accept application.");
+    }
   };
 
   if (!app) {
@@ -113,43 +117,55 @@ function ApplicationDetail() {
       return { ...f, costs: next };
     });
 
-  const submitAssessment = () => {
+  const submitAssessment = async () => {
     if (!form.diagnosis.trim() || maxTotal === 0) {
       toast.error("Add a diagnosis and at least one cost estimate before submitting.");
       return;
     }
-    updateApplication(app.id, { assessment: form, status: "assessed" });
-    toast.success("Assessment submitted — AI treatment plan generated.");
+    try {
+      await updateApplication(app.id, { assessment: form, status: "assessed" });
+      toast.success("Assessment submitted — AI treatment plan generated.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to submit assessment.");
+    }
   };
 
-  const approve = () => {
+  const approve = async () => {
     const campaignId = "CMP-" + Math.floor(120 + Math.random() * 60);
-    addCampaign({
-      id: campaignId,
-      patientName: app.patient.name,
-      condition: app.condition,
-      goal,
-      raised: 0,
-      donors: 0,
-      status: "active",
-      created: "4 Aug 2026",
-      treatmentStage: 0,
-      donations: [],
-      updates: [{ date: "4 Aug 2026", note: "Campaign published and verified by Alliance Hospital." }],
-      payments: [],
-    });
-    updateApplication(app.id, { status: "approved", campaignId });
-    toast.success("Campaign approved and published.");
-    navigate({ to: "/campaigns/$id", params: { id: campaignId } });
+    try {
+      await addCampaign({
+        id: campaignId,
+        patientName: app.patient.name,
+        condition: app.condition,
+        goal,
+        raised: 0,
+        donors: 0,
+        status: "active",
+        created: "4 Aug 2026",
+        treatmentStage: 0,
+        donations: [],
+        updates: [{ date: "4 Aug 2026", note: "Campaign published and verified by Alliance Hospital." }],
+        payments: [],
+      });
+      await updateApplication(app.id, { status: "approved", campaignId });
+      toast.success("Campaign approved and published.");
+      navigate({ to: "/campaigns/$id", params: { id: campaignId } });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to approve campaign.");
+    }
   };
 
-  const reject = () => {
+  const reject = async () => {
     if (!rejectReason.trim()) {
       toast.error("Please enter a reason for rejection.");
       return;
     }
-    updateApplication(app.id, { status: "rejected", rejectionReason: rejectReason });
-    toast.success("Application rejected. The patient has been notified.");
+    try {
+      await updateApplication(app.id, { status: "rejected", rejectionReason: rejectReason });
+      toast.success("Application rejected. The patient has been notified.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to reject application.");
+    }
   };
 
   return (
@@ -357,9 +373,13 @@ function ApplicationDetail() {
                   <Button onClick={submitAssessment}>Submit assessment</Button>
                   <Button
                     variant="outline"
-                    onClick={() => {
-                      updateApplication(app.id, { status: "info-requested" });
-                      toast.success("Additional information requested from the patient.");
+                    onClick={async () => {
+                      try {
+                        await updateApplication(app.id, { status: "info-requested" });
+                        toast.success("Additional information requested from the patient.");
+                      } catch (err) {
+                        toast.error(err instanceof Error ? err.message : "Failed to request information.");
+                      }
                     }}
                   >
                     <MessageSquare className="mr-1 h-4 w-4" /> Request more information
