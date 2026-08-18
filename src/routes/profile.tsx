@@ -38,7 +38,7 @@ export const Route = createFileRoute("/profile")({
       },
     ],
   }),
-  component: Profile;
+  component: Profile,
 });
 
 function Profile() {
