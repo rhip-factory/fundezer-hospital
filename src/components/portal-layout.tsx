@@ -6,6 +6,8 @@ import {
   Wallet,
   BarChart3,
   BadgeCheck,
+  ArrowRightLeft,
+  Building2,
   Bell,
   type LucideIcon,
 } from "lucide-react";
@@ -21,7 +23,9 @@ const nav: { to: string; label: string; icon: LucideIcon }[] = [
   { to: "/applications", label: "Applications", icon: ClipboardList },
   { to: "/campaigns", label: "Campaigns", icon: HeartHandshake },
   { to: "/payments", label: "Payments & wallet", icon: Wallet },
+  { to: "/transfers", label: "Transfer requests", icon: ArrowRightLeft },
   { to: "/reports", label: "Reports", icon: BarChart3 },
+  { to: "/profile", label: "Hospital profile", icon: Building2 },
 ];
 
 export function PortalLayout({
