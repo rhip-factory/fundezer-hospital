@@ -65,7 +65,7 @@ export const transferStatusLabel: Record<TransferStatus, string> = {
   cancelled: "Cancelled",
 };
 
-export type TransferEvent = { status: TransferStatus; date: string; note?: string };
+export type TransferEvent = { status: TransferStatus; date: string; note?: string | undefined };
 
 export type TransferRequest = {
   id: string;
@@ -76,10 +76,10 @@ export type TransferRequest = {
   requiredService: string;
   reason: string;
   urgency: Urgency;
-  extra?: string;
+  extra?: string | undefined;
   submitted: string;
   status: TransferStatus;
-  receivingHospital?: string;
+  receivingHospital?: string | undefined;
   history: TransferEvent[];
 };
 
@@ -210,7 +210,7 @@ export function createTransferRequest(input: {
   requiredService: string;
   reason: string;
   urgency: Urgency;
-  extra?: string;
+  extra?: string | undefined;
 }): TransferRequest {
   const id = "FT-" + String(counter++).padStart(6, "0");
   const date = today();
