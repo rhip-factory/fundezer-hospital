@@ -12,11 +12,14 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as PaymentsRouteImport } from './routes/payments'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as ApplicationsIndexRouteImport } from './routes/applications.index'
 import { Route as ApplicationsIdRouteImport } from './routes/applications.$id'
 import { Route as CampaignsIndexRouteImport } from './routes/campaigns.index'
 import { Route as CampaignsIdRouteImport } from './routes/campaigns.$id'
+import { Route as TransfersIndexRouteImport } from './routes/transfers.index'
+import { Route as TransfersIdRouteImport } from './routes/transfers.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -31,6 +34,11 @@ const AuthRoute = AuthRouteImport.update({
 const PaymentsRoute = PaymentsRouteImport.update({
   id: '/payments',
   path: '/payments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReportsRoute = ReportsRouteImport.update({
@@ -58,37 +66,56 @@ const CampaignsIdRoute = CampaignsIdRouteImport.update({
   path: '/campaigns/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TransfersIndexRoute = TransfersIndexRouteImport.update({
+  id: '/transfers/',
+  path: '/transfers/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TransfersIdRoute = TransfersIdRouteImport.update({
+  id: '/transfers/$id',
+  path: '/transfers/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/payments': typeof PaymentsRoute
+  '/profile': typeof ProfileRoute
   '/reports': typeof ReportsRoute
   '/applications/$id': typeof ApplicationsIdRoute
   '/campaigns/$id': typeof CampaignsIdRoute
+  '/transfers/$id': typeof TransfersIdRoute
   '/applications/': typeof ApplicationsIndexRoute
   '/campaigns/': typeof CampaignsIndexRoute
+  '/transfers/': typeof TransfersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/payments': typeof PaymentsRoute
+  '/profile': typeof ProfileRoute
   '/reports': typeof ReportsRoute
   '/applications/$id': typeof ApplicationsIdRoute
   '/campaigns/$id': typeof CampaignsIdRoute
+  '/transfers/$id': typeof TransfersIdRoute
   '/applications': typeof ApplicationsIndexRoute
   '/campaigns': typeof CampaignsIndexRoute
+  '/transfers': typeof TransfersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/payments': typeof PaymentsRoute
+  '/profile': typeof ProfileRoute
   '/reports': typeof ReportsRoute
   '/applications/$id': typeof ApplicationsIdRoute
   '/campaigns/$id': typeof CampaignsIdRoute
+  '/transfers/$id': typeof TransfersIdRoute
   '/applications/': typeof ApplicationsIndexRoute
   '/campaigns/': typeof CampaignsIndexRoute
+  '/transfers/': typeof TransfersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -96,42 +123,54 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/payments'
+    | '/profile'
     | '/reports'
     | '/applications/$id'
     | '/campaigns/$id'
+    | '/transfers/$id'
     | '/applications/'
     | '/campaigns/'
+    | '/transfers/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/payments'
+    | '/profile'
     | '/reports'
     | '/applications/$id'
     | '/campaigns/$id'
+    | '/transfers/$id'
     | '/applications'
     | '/campaigns'
+    | '/transfers'
   id:
     | '__root__'
     | '/'
     | '/auth'
     | '/payments'
+    | '/profile'
     | '/reports'
     | '/applications/$id'
     | '/campaigns/$id'
+    | '/transfers/$id'
     | '/applications/'
     | '/campaigns/'
+    | '/transfers/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   PaymentsRoute: typeof PaymentsRoute
+  ProfileRoute: typeof ProfileRoute
   ReportsRoute: typeof ReportsRoute
   ApplicationsIdRoute: typeof ApplicationsIdRoute
   CampaignsIdRoute: typeof CampaignsIdRoute
+  TransfersIdRoute: typeof TransfersIdRoute
   ApplicationsIndexRoute: typeof ApplicationsIndexRoute
   CampaignsIndexRoute: typeof CampaignsIndexRoute
+  TransfersIndexRoute: typeof TransfersIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -155,6 +194,13 @@ declare module '@tanstack/react-router' {
       path: '/payments'
       fullPath: '/payments'
       preLoaderRoute: typeof PaymentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reports': {
@@ -192,6 +238,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CampaignsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/transfers/': {
+      id: '/transfers/'
+      path: '/transfers'
+      fullPath: '/transfers/'
+      preLoaderRoute: typeof TransfersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/transfers/$id': {
+      id: '/transfers/$id'
+      path: '/transfers/$id'
+      fullPath: '/transfers/$id'
+      preLoaderRoute: typeof TransfersIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -199,11 +259,14 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   PaymentsRoute: PaymentsRoute,
+  ProfileRoute: ProfileRoute,
   ReportsRoute: ReportsRoute,
   ApplicationsIdRoute: ApplicationsIdRoute,
   CampaignsIdRoute: CampaignsIdRoute,
+  TransfersIdRoute: TransfersIdRoute,
   ApplicationsIndexRoute: ApplicationsIndexRoute,
   CampaignsIndexRoute: CampaignsIndexRoute,
+  TransfersIndexRoute: TransfersIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -11,6 +11,9 @@ import { Separator } from "@/components/ui/separator";
 import { campaignWallet, naira } from "@/lib/mock-data";
 import { RequestFundsDialog } from "@/components/request-funds-dialog";
 import { updateCampaign, usePortalState } from "@/lib/store";
+import { RequestTransferDialog } from "@/components/request-transfer-dialog";
+import { TransferStatusBadge, TransferTimeline, UrgencyBadge } from "@/components/transfer-bits";
+import { isTerminal, transferStatusLabel, useTransferState } from "@/lib/transfers";
 
 const stages = ["Campaign live", "Investigations", "Procedure", "Recovery", "Completed"];
 
@@ -35,7 +38,10 @@ export const Route = createFileRoute("/campaigns/$id")({
 function CampaignDetail() {
   const { id } = Route.useParams();
   const { campaigns } = usePortalState();
+  const { transfers } = useTransferState();
   const c = campaigns.find((x) => x.id === id);
+  const campaignTransfers = transfers.filter((t) => t.campaignId === id);
+  const activeTransfer = campaignTransfers.find((t) => !isTerminal(t.status));
   const [note, setNote] = useState("");
 
   if (!c) {
@@ -127,6 +133,37 @@ function CampaignDetail() {
                   </span>
                 ))}
               </div>
+              {campaignTransfers.length > 0 && (
+                <div className="rounded-lg border border-primary/30 bg-primary-soft p-3">
+                  <p className="text-xs font-semibold text-accent-foreground">
+                    Treatment journey includes a transfer
+                  </p>
+                  <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                    {[
+                      "Diagnosis",
+                      "Treatment",
+                      "Transfer required",
+                      activeTransfer && activeTransfer.status === "rejected"
+                        ? "Transfer rejected"
+                        : "Transfer approved",
+                      "New hospital",
+                      "Treatment continues",
+                      "Treatment completed",
+                    ].map((step, i, arr) => (
+                      <span key={step} className="flex items-center gap-2">
+                        <span className="rounded-full border border-primary/30 bg-background px-2.5 py-1 font-medium">
+                          {step}
+                        </span>
+                        {i < arr.length - 1 && <span className="text-muted-foreground">→</span>}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    The campaign, donors, donations and funding progress stay with the patient —
+                    only the hospital assignment changes.
+                  </p>
+                </div>
+              )}
               <Separator />
               <div className="space-y-3">
                 {c.updates.map((u) => (
@@ -216,6 +253,47 @@ function CampaignDetail() {
                 milestones.
               </p>
               <RequestFundsDialog campaign={c} available={available} stages={stages} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Patient transfer</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {campaignTransfers.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  No transfer requested. Raise a request if this patient needs a service your
+                  hospital cannot currently deliver.
+                </p>
+              )}
+              {campaignTransfers.map((t) => (
+                <div key={t.id} className="space-y-3 rounded-lg border border-border p-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <p className="text-sm font-semibold">{t.id}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t.requiredService} · {t.submitted}
+                      </p>
+                    </div>
+                    <UrgencyBadge urgency={t.urgency} />
+                  </div>
+                  <TransferStatusBadge status={t.status} />
+                  <TransferTimeline transfer={t} />
+                  <p className="text-xs text-muted-foreground">
+                    Current status: {transferStatusLabel[t.status]} — FundEzer Admin decides
+                    transfer approvals.
+                  </p>
+                  <Button asChild variant="outline" size="sm" className="w-full">
+                    <Link to="/transfers/$id" params={{ id: t.id }}>
+                      View transfer status
+                    </Link>
+                  </Button>
+                </div>
+              ))}
+              {c.status === "active" && !activeTransfer && (
+                <RequestTransferDialog campaign={c} phases={stages} />
+              )}
             </CardContent>
           </Card>
 
