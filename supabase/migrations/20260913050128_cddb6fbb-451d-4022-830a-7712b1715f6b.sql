@@ -1,0 +1,1 @@
+COMMENT ON TABLE public.fund_requests IS 'Hospital milestone fund requests (drawdowns) raised against a campaign.';
