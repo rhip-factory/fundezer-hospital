@@ -46,6 +46,7 @@ export type Database = {
       }
       applications: {
         Row: {
+          assessment: Json | null
           cause_id: string | null
           created_at: string
           decided_at: string | null
@@ -53,10 +54,13 @@ export type Database = {
           hospital_id: string | null
           id: string
           patient_id: string
+          rejection_reason: string | null
           requested_amount: number
           review_notes: string | null
           reviewed_at: string | null
           reviewed_by: string | null
+          risk_flags: Json
+          risk_score: number
           service_id: string | null
           status: Database["public"]["Enums"]["application_status"]
           status_changed_at: string
@@ -67,6 +71,7 @@ export type Database = {
           verified_by: string | null
         }
         Insert: {
+          assessment?: Json | null
           cause_id?: string | null
           created_at?: string
           decided_at?: string | null
@@ -74,10 +79,13 @@ export type Database = {
           hospital_id?: string | null
           id?: string
           patient_id: string
+          rejection_reason?: string | null
           requested_amount?: number
           review_notes?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          risk_flags?: Json
+          risk_score?: number
           service_id?: string | null
           status?: Database["public"]["Enums"]["application_status"]
           status_changed_at?: string
@@ -88,6 +96,7 @@ export type Database = {
           verified_by?: string | null
         }
         Update: {
+          assessment?: Json | null
           cause_id?: string | null
           created_at?: string
           decided_at?: string | null
@@ -95,10 +104,13 @@ export type Database = {
           hospital_id?: string | null
           id?: string
           patient_id?: string
+          rejection_reason?: string | null
           requested_amount?: number
           review_notes?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          risk_flags?: Json
+          risk_score?: number
           service_id?: string | null
           status?: Database["public"]["Enums"]["application_status"]
           status_changed_at?: string
@@ -222,6 +234,7 @@ export type Database = {
           status: Database["public"]["Enums"]["campaign_status"]
           target: number
           title: string
+          treatment_stage: number
           updated_at: string
         }
         Insert: {
@@ -242,6 +255,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["campaign_status"]
           target?: number
           title: string
+          treatment_stage?: number
           updated_at?: string
         }
         Update: {
@@ -262,6 +276,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["campaign_status"]
           target?: number
           title?: string
+          treatment_stage?: number
           updated_at?: string
         }
         Relationships: []
@@ -466,6 +481,62 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      fund_requests: {
+        Row: {
+          amount: number
+          campaign_id: string
+          created_at: string
+          decline_reason: string | null
+          document: string | null
+          id: string
+          milestone: string
+          note: string | null
+          requested_by: string | null
+          requested_on: string
+          stage: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          campaign_id: string
+          created_at?: string
+          decline_reason?: string | null
+          document?: string | null
+          id?: string
+          milestone: string
+          note?: string | null
+          requested_by?: string | null
+          requested_on?: string
+          stage?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          campaign_id?: string
+          created_at?: string
+          decline_reason?: string | null
+          document?: string | null
+          id?: string
+          milestone?: string
+          note?: string | null
+          requested_by?: string | null
+          requested_on?: string
+          stage?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fund_requests_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       hospital_capabilities: {
         Row: {
