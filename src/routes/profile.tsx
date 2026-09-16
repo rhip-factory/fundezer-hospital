@@ -13,14 +13,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CapabilityBadge } from "@/components/transfer-bits";
-import { HOSPITAL } from "@/lib/mock-data";
 import {
   capabilityStatusLabel,
-  saveCapabilities,
-  useTransferState,
   type Capability,
   type CapabilityStatus,
 } from "@/lib/transfers";
+import { saveCapabilities, useTransferState } from "@/lib/store";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -42,7 +40,8 @@ export const Route = createFileRoute("/profile")({
 });
 
 function Profile() {
-  const { capabilities } = useTransferState();
+  const { capabilities, hospital, reviewerName, reviewerRole } = useTransferState();
+  const [saving, setSaving] = useState(false);
   const [draft, setDraft] = useState<Capability[]>(capabilities);
 
   useEffect(() => {
@@ -56,9 +55,16 @@ function Profile() {
   const set = (id: string, status: CapabilityStatus) =>
     setDraft((prev) => prev.map((c) => (c.id === id ? { ...c, status } : c)));
 
-  const save = () => {
-    saveCapabilities(draft);
-    toast.success("Hospital capabilities updated.");
+  const save = async () => {
+    setSaving(true);
+    try {
+      await saveCapabilities(draft);
+      toast.success("Hospital capabilities updated.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not save capabilities.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const groups: { key: Capability["group"]; title: string; hint: string }[] = [
@@ -71,8 +77,8 @@ function Profile() {
       title="Hospital profile"
       subtitle="Profile details and current clinical capabilities"
       actions={
-        <Button size="sm" onClick={save} disabled={!dirty}>
-          <Save className="mr-1 h-4 w-4" /> Save changes
+        <Button size="sm" onClick={save} disabled={!dirty || saving}>
+          <Save className="mr-1 h-4 w-4" /> {saving ? "Saving..." : "Save changes"}
         </Button>
       }
     >
@@ -82,14 +88,23 @@ function Profile() {
             <CardTitle className="text-base">Hospital details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
-            <p className="text-lg font-bold">{HOSPITAL.name}</p>
-            <p className="text-muted-foreground">{HOSPITAL.city}</p>
-            <div className="flex items-center gap-2 text-accent-foreground">
-              <BadgeCheck className="h-4 w-4" />
-              <span className="text-xs font-semibold">Verified FundEzer partner</span>
-            </div>
+            <p className="text-lg font-bold">{hospital?.name ?? "No hospital linked"}</p>
+            <p className="text-muted-foreground">
+              {hospital ? `${hospital.city}, ${hospital.state}` : "Sign in to load your hospital"}
+            </p>
+            {hospital?.accreditation && (
+              <p className="text-muted-foreground">Accreditation: {hospital.accreditation}</p>
+            )}
+            {hospital && <p className="text-muted-foreground">{hospital.beds} beds</p>}
+            {hospital?.verified && (
+              <div className="flex items-center gap-2 text-accent-foreground">
+                <BadgeCheck className="h-4 w-4" />
+                <span className="text-xs font-semibold">Verified FundEzer partner</span>
+              </div>
+            )}
             <p className="pt-2 text-muted-foreground">
-              Reviewer: <span className="font-medium text-foreground">{HOSPITAL.reviewer}</span>
+              Reviewer: <span className="font-medium text-foreground">{reviewerName || "Guest"}</span>
+              {reviewerRole ? ` · ${reviewerRole}` : ""}
             </p>
             <p className="pt-2 text-xs text-muted-foreground">
               Capability availability helps FundEzer Admin match patients who need a transfer to a
@@ -106,6 +121,11 @@ function Profile() {
                 <p className="text-sm text-muted-foreground">{g.hint}</p>
               </CardHeader>
               <CardContent className="divide-y divide-border p-0">
+                {draft.filter((c) => c.group === g.key).length === 0 && (
+                  <p className="p-5 text-sm text-muted-foreground">
+                    Nothing recorded for your hospital yet.
+                  </p>
+                )}
                 {draft
                   .filter((c) => c.group === g.key)
                   .map((c) => (
