@@ -35,7 +35,7 @@ import {
   type CostEstimate,
   type Urgency,
 } from "@/lib/mock-data";
-import { addCampaign, updateApplication, usePortalState } from "@/lib/store";
+import { approveApplication, updateApplication, usePortalState } from "@/lib/store";
 
 export const Route = createFileRoute("/applications/$id")({
   head: () => ({
@@ -131,23 +131,8 @@ function ApplicationDetail() {
   };
 
   const approve = async () => {
-    const campaignId = "CMP-" + Math.floor(120 + Math.random() * 60);
     try {
-      await addCampaign({
-        id: campaignId,
-        patientName: app.patient.name,
-        condition: app.condition,
-        goal,
-        raised: 0,
-        donors: 0,
-        status: "active",
-        created: "4 Aug 2026",
-        treatmentStage: 0,
-        donations: [],
-        updates: [{ date: "4 Aug 2026", note: "Campaign published and verified by Alliance Hospital." }],
-        payments: [],
-      });
-      await updateApplication(app.id, { status: "approved", campaignId });
+      const campaignId = await approveApplication(app.id, goal);
       toast.success("Campaign approved and published.");
       navigate({ to: "/campaigns/$id", params: { id: campaignId } });
     } catch (err) {

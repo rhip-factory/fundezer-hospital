@@ -20,7 +20,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { TransferStatusBadge, UrgencyBadge } from "@/components/transfer-bits";
-import { transferStatusLabel, useTransferState, type TransferStatus } from "@/lib/transfers";
+import { transferStatusLabel, type TransferStatus } from "@/lib/transfers";
+import { useTransferState } from "@/lib/store";
 
 export const Route = createFileRoute("/transfers/")({
   head: () => ({

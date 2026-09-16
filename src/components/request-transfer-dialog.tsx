@@ -23,13 +23,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Campaign } from "@/lib/mock-data";
-import {
-  CAPABILITY_SERVICES,
-  createTransferRequest,
-  urgencyLabel,
-  type TransferRequest,
-  type Urgency,
-} from "@/lib/transfers";
+import { urgencyLabel, type TransferRequest, type Urgency } from "@/lib/transfers";
+import { createTransferRequest, useTransferState } from "@/lib/store";
 
 export function RequestTransferDialog({
   campaign,
@@ -38,7 +33,9 @@ export function RequestTransferDialog({
   campaign: Campaign;
   phases: string[];
 }) {
+  const { services } = useTransferState();
   const [open, setOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [phase, setPhase] = useState(
     phases[Math.min(campaign.treatmentStage, phases.length - 1)] ?? "",
   );
@@ -56,7 +53,7 @@ export function RequestTransferDialog({
     setCreated(null);
   };
 
-  const submit = () => {
+  const submit = async () => {
     if (!phase) {
       toast.error("Select the current treatment phase.");
       return;
@@ -69,17 +66,24 @@ export function RequestTransferDialog({
       toast.error("Give a reason for the transfer (at least 10 characters).");
       return;
     }
-    const t = createTransferRequest({
-      campaignId: campaign.id,
-      patientName: campaign.patientName,
-      treatmentPhase: phase,
-      requiredService: service,
-      reason: reason.trim().slice(0, 600),
-      urgency,
-      extra: extra.trim().slice(0, 600) || undefined,
-    });
-    setCreated(t);
-    toast.success(`Transfer request ${t.id} submitted to FundEzer Admin.`);
+    setSubmitting(true);
+    try {
+      const t = await createTransferRequest({
+        campaignId: campaign.id,
+        treatmentPhase: phase,
+        serviceId: service,
+        reason: reason.trim().slice(0, 600),
+        urgency,
+        extra: extra.trim().slice(0, 600) || undefined,
+      });
+      if (!t) throw new Error("Transfer submitted but could not be loaded.");
+      setCreated(t);
+      toast.success(`Transfer request ${t.id} submitted to FundEzer Admin.`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not submit the transfer request.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -180,9 +184,9 @@ export function RequestTransferDialog({
                     <SelectValue placeholder="Select service" />
                   </SelectTrigger>
                   <SelectContent>
-                    {CAPABILITY_SERVICES.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {s}
+                    {services.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -232,7 +236,9 @@ export function RequestTransferDialog({
               <Button variant="outline" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={submit}>Submit transfer request</Button>
+              <Button onClick={submit} disabled={submitting}>
+                {submitting ? "Submitting..." : "Submit transfer request"}
+              </Button>
             </DialogFooter>
           </div>
         )}

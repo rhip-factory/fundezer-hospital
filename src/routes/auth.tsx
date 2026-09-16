@@ -1,12 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { signUpAsReviewer } from "@/lib/data.functions";
+import { listSignUpHospitals, signUpAsReviewer } from "@/lib/data.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import logo from "@/assets/fundezer-icon.png.asset.json";
 
@@ -27,6 +34,15 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [hospitalId, setHospitalId] = useState("");
+  const [hospitals, setHospitals] = useState<{ id: string; name: string; city: string }[]>([]);
+
+  useEffect(() => {
+    listSignUpHospitals()
+      .then(setHospitals)
+      .catch(() => setHospitals([]));
+  }, []);
 
   const signIn = async () => {
     if (!email.trim() || !password.trim()) {
@@ -53,9 +69,19 @@ function AuthPage() {
       toast.error("Password must be at least 6 characters.");
       return;
     }
+    if (fullName.trim().length < 2) {
+      toast.error("Enter your full name.");
+      return;
+    }
+    if (!hospitalId) {
+      toast.error("Select your hospital.");
+      return;
+    }
     setIsLoading(true);
     try {
-      await signUpAsReviewer({ data: { email: email.trim(), password } });
+      await signUpAsReviewer({
+        data: { email: email.trim(), password, fullName: fullName.trim(), hospitalId },
+      });
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (error) {
         toast.error(error.message);
@@ -112,6 +138,30 @@ function AuthPage() {
               </Button>
             </TabsContent>
             <TabsContent value="signup" className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="signup-name">Full name</Label>
+                <Input
+                  id="signup-name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Dr. Amaka Eze"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Hospital</Label>
+                <Select value={hospitalId} onValueChange={setHospitalId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your hospital" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {hospitals.map((h) => (
+                      <SelectItem key={h.id} value={h.id}>
+                        {h.name} · {h.city}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="space-y-1.5">
                 <Label htmlFor="signup-email">Email</Label>
                 <Input

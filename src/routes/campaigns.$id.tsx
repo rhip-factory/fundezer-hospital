@@ -10,10 +10,10 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { campaignWallet, naira } from "@/lib/mock-data";
 import { RequestFundsDialog } from "@/components/request-funds-dialog";
-import { updateCampaign, usePortalState } from "@/lib/store";
+import { updateCampaign, usePortalState, useTransferState } from "@/lib/store";
 import { RequestTransferDialog } from "@/components/request-transfer-dialog";
 import { TransferStatusBadge, TransferTimeline, UrgencyBadge } from "@/components/transfer-bits";
-import { isTerminal, transferStatusLabel, useTransferState } from "@/lib/transfers";
+import { isTerminal, transferStatusLabel } from "@/lib/transfers";
 
 const stages = ["Campaign live", "Investigations", "Procedure", "Recovery", "Completed"];
 

@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import logo from "@/assets/fundezer-icon.png.asset.json";
-import { HOSPITAL } from "@/lib/mock-data";
 import { usePortalState } from "@/lib/store";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -40,7 +39,7 @@ export function PortalLayout({
   children: ReactNode;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { applications } = usePortalState();
+  const { applications, hospital, reviewerName, reviewerRole } = usePortalState();
   const pending = applications.filter((a) => a.status === "pending").length;
 
   return (
@@ -88,8 +87,8 @@ export function PortalLayout({
             <BadgeCheck className="h-4 w-4" />
             <span className="text-xs font-semibold">Verified partner</span>
           </div>
-          <p className="mt-2 text-sm font-semibold">{HOSPITAL.name}</p>
-          <p className="text-xs text-muted-foreground">{HOSPITAL.city}</p>
+          <p className="mt-2 text-sm font-semibold">{hospital?.name ?? "No hospital linked"}</p>
+          <p className="text-xs text-muted-foreground">{hospital ? `${hospital.city}, ${hospital.state}` : "Sign in to load your hospital"}</p>
         </div>
       </aside>
 
@@ -115,8 +114,8 @@ export function PortalLayout({
                   AE
                 </div>
                 <div className="leading-tight">
-                  <p className="text-sm font-semibold">{HOSPITAL.reviewer}</p>
-                  <p className="text-xs text-muted-foreground">Hospital reviewer</p>
+                  <p className="text-sm font-semibold">{reviewerName || "Guest"}</p>
+                  <p className="text-xs text-muted-foreground">{reviewerRole || "Not signed in"}</p>
                 </div>
               </div>
               <Link
