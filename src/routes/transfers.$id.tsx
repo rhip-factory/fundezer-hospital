@@ -6,15 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { TransferStatusBadge, TransferTimeline, UrgencyBadge } from "@/components/transfer-bits";
+import { isTerminal, transferStatusLabel } from "@/lib/transfers";
 import {
   cancelTransfer,
-  isTerminal,
   simulateAdvance,
   simulateReject,
-  transferStatusLabel,
+  usePortalState,
   useTransferState,
-} from "@/lib/transfers";
-import { usePortalState } from "@/lib/store";
+} from "@/lib/store";
 import { naira } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/transfers/$id")({
@@ -160,9 +159,13 @@ function TransferDetail() {
                   size="sm"
                   variant="outline"
                   disabled={isTerminal(t.status)}
-                  onClick={() => {
-                    simulateAdvance(t.id);
-                    toast.success("Simulated admin update applied.");
+                  onClick={async () => {
+                    try {
+                      await simulateAdvance(t.dbId);
+                      toast.success("Admin update applied.");
+                    } catch (err) {
+                      toast.error(err instanceof Error ? err.message : "Update failed.");
+                    }
                   }}
                 >
                   Simulate next admin update
@@ -171,9 +174,13 @@ function TransferDetail() {
                   size="sm"
                   variant="outline"
                   disabled={isTerminal(t.status)}
-                  onClick={() => {
-                    simulateReject(t.id);
-                    toast.error("Simulated: request rejected by FundEzer Admin.");
+                  onClick={async () => {
+                    try {
+                      await simulateReject(t.dbId);
+                      toast.error("Request rejected by FundEzer Admin.");
+                    } catch (err) {
+                      toast.error(err instanceof Error ? err.message : "Update failed.");
+                    }
                   }}
                 >
                   Simulate rejection
@@ -182,9 +189,13 @@ function TransferDetail() {
                   size="sm"
                   variant="ghost"
                   disabled={isTerminal(t.status)}
-                  onClick={() => {
-                    cancelTransfer(t.id);
-                    toast.success("Transfer request cancelled.");
+                  onClick={async () => {
+                    try {
+                      await cancelTransfer(t.dbId);
+                      toast.success("Transfer request cancelled.");
+                    } catch (err) {
+                      toast.error(err instanceof Error ? err.message : "Update failed.");
+                    }
                   }}
                 >
                   Cancel request
