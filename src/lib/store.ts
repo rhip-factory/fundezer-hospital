@@ -1,128 +1,105 @@
 import { useSyncExternalStore } from "react";
+import type { Application, Campaign, Payment, PaymentStatus } from "./mock-data";
+import type { Capability, CapabilityStatus, TransferRequest, Urgency } from "./transfers";
 import {
-  applications as seedApps,
-  campaigns as seedCampaigns,
-  type Application,
-  type Campaign,
-  type Payment,
-  type PaymentStatus,
-} from "./mock-data";
-import {
-  getAllData,
+  emptyPortalPayload,
+  getPortalData,
   requestFunds as requestFundsServer,
   setPaymentStatus as setPaymentStatusServer,
   withdrawFundRequest as withdrawFundRequestServer,
   updateApplication as updateApplicationServer,
+  approveApplication as approveApplicationServer,
   updateCampaign as updateCampaignServer,
-  addCampaign as addCampaignServer,
+  postCampaignUpdate as postCampaignUpdateServer,
+  saveCapabilities as saveCapabilitiesServer,
+  createTransferRequest as createTransferServer,
+  cancelTransfer as cancelTransferServer,
+  advanceTransfer as advanceTransferServer,
+  rejectTransfer as rejectTransferServer,
+  type PortalPayload,
 } from "./data.functions";
 
-type State = { applications: Application[]; campaigns: Campaign[] };
+/* ---------------------------------------------------------------------------
+ * Single source of truth for the portal: everything comes from the shared
+ * FundEzer backend through server functions that run as the signed-in user,
+ * so RLS decides what this hospital can see and change.
+ * ------------------------------------------------------------------------- */
 
-let state: State = {
-  applications: structuredClone(seedApps),
-  campaigns: structuredClone(seedCampaigns),
-};
+let state: PortalPayload = { ...emptyPortalPayload };
 
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
-
 const subscribe = (l: () => void) => {
   listeners.add(l);
   return () => listeners.delete(l);
 };
-
 const getSnapshot = () => state;
 
 export function usePortalState() {
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
 
+/** Transfer & capability slice of the same store (kept for existing screens). */
+export function useTransferState() {
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+}
+
 export async function hydrateFromServer() {
-  const data = await getAllData();
-  state = {
-    applications: data.applications,
-    campaigns: data.campaigns,
-  };
+  try {
+    state = await getPortalData();
+  } catch {
+    state = { ...emptyPortalPayload };
+  }
   emit();
 }
+
+const refresh = () => hydrateFromServer();
+
+/* ------------------------------ applications ----------------------------- */
 
 export async function updateApplication(id: string, patch: Partial<Application>) {
-  const prev = state;
-  state = {
-    ...state,
-    applications: state.applications.map((a) => (a.id === id ? { ...a, ...patch } : a)),
-  };
-  emit();
-  try {
-    await updateApplicationServer({
-      data: {
-        id,
-        patch: {
-          status: patch.status,
-          rejectionReason: patch.rejectionReason,
-          assessment: patch.assessment,
-          campaignId: patch.campaignId,
-        },
+  await updateApplicationServer({
+    data: {
+      id,
+      patch: {
+        ...(patch.status ? { status: patch.status } : {}),
+        ...(patch.rejectionReason ? { rejectionReason: patch.rejectionReason } : {}),
+        ...(patch.assessment ? { assessment: patch.assessment } : {}),
       },
-    });
-  } catch (err) {
-    state = prev;
-    emit();
-    throw err;
-  }
+    },
+  });
+  await refresh();
 }
 
-export async function addCampaign(c: Campaign) {
-  const prev = state;
-  state = { ...state, campaigns: [c, ...state.campaigns] };
-  emit();
-  try {
-    await addCampaignServer({
-      data: {
-        id: c.id,
-        patientName: c.patientName,
-        condition: c.condition,
-        goal: c.goal,
-        raised: c.raised,
-        donors: c.donors,
-        status: c.status,
-        created: c.created,
-        treatmentStage: c.treatmentStage,
-        applicationId: undefined,
-      },
-    });
-  } catch (err) {
-    state = prev;
-    emit();
-    throw err;
-  }
+/** Approves an application and creates its campaign in the backend. */
+export async function approveApplication(applicationId: string, goal: number) {
+  const { campaignId } = await approveApplicationServer({ data: { applicationId, goal } });
+  await refresh();
+  return campaignId;
 }
+
+/* -------------------------------- campaigns ------------------------------ */
 
 export async function updateCampaign(id: string, patch: Partial<Campaign>) {
-  const prev = state;
-  state = {
-    ...state,
-    campaigns: state.campaigns.map((c) => (c.id === id ? { ...c, ...patch } : c)),
-  };
-  emit();
-  try {
+  if (patch.updates && patch.updates.length > 0) {
+    const latest = patch.updates[0];
+    if (latest?.note) await postCampaignUpdateServer({ data: { campaignId: id, note: latest.note } });
+  }
+  if (patch.status || patch.treatmentStage !== undefined) {
     await updateCampaignServer({
       data: {
         id,
         patch: {
-          status: patch.status,
-          treatmentStage: patch.treatmentStage,
-          updates: patch.updates,
+          ...(patch.status ? { status: patch.status } : {}),
+          ...(patch.treatmentStage !== undefined ? { treatmentStage: patch.treatmentStage } : {}),
         },
       },
     });
-  } catch (err) {
-    state = prev;
-    emit();
-    throw err;
   }
+  await refresh();
 }
+
+/* ------------------------------ fund requests ---------------------------- */
 
 export async function requestFunds(
   campaignId: string,
@@ -133,99 +110,87 @@ export async function requestFunds(
     note?: string | undefined;
     document?: string | undefined;
   },
-) {
-  const prev = state;
-  const payment: Payment = {
-    id: "PAY-" + Math.floor(1000 + Math.random() * 9000),
-    milestone: payload.milestone,
-    amount: payload.amount,
-    date: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
-    status: "requested",
-    stage: payload.stage,
-    note: payload.note,
-    document: payload.document,
-  };
-  state = {
-    ...state,
-    campaigns: state.campaigns.map((c) =>
-      c.id === campaignId ? { ...c, payments: [payment, ...c.payments] } : c,
-    ),
-  };
-  emit();
-  try {
-    await requestFundsServer({
-      data: {
-        campaignId,
-        milestone: payload.milestone,
-        amount: payload.amount,
-        stage: payload.stage,
-        note: payload.note,
-        document: payload.document,
-      },
-    });
-  } catch (err) {
-    state = prev;
-    emit();
-    throw err;
-  }
+): Promise<Payment> {
+  const payment = await requestFundsServer({
+    data: {
+      campaignId,
+      milestone: payload.milestone,
+      amount: payload.amount,
+      ...(payload.stage ? { stage: payload.stage } : {}),
+      ...(payload.note ? { note: payload.note } : {}),
+      ...(payload.document ? { document: payload.document } : {}),
+    },
+  });
+  await refresh();
   return payment;
 }
 
 export async function setPaymentStatus(
-  campaignId: string,
+  _campaignId: string,
   paymentId: string,
   status: PaymentStatus,
   reason?: string,
 ) {
-  const prev = state;
-  state = {
-    ...state,
-    campaigns: state.campaigns.map((c) =>
-      c.id === campaignId
-        ? {
-            ...c,
-            payments: c.payments.map((p) =>
-              p.id === paymentId
-                ? {
-                    ...p,
-                    status,
-                    declineReason: reason,
-                    date: status === "paid" ? new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : p.date,
-                  }
-                : p,
-            ),
-          }
-        : c,
-    ),
-  };
-  emit();
-  try {
-    await setPaymentStatusServer({
-      data: { campaignId, paymentId, status, reason },
-    });
-  } catch (err) {
-    state = prev;
-    emit();
-    throw err;
-  }
+  await setPaymentStatusServer({ data: { paymentId, status, ...(reason ? { reason } : {}) } });
+  await refresh();
 }
 
-export async function withdrawFundRequest(campaignId: string, paymentId: string) {
-  const prev = state;
-  state = {
-    ...state,
-    campaigns: state.campaigns.map((c) =>
-      c.id === campaignId ? { ...c, payments: c.payments.filter((p) => p.id !== paymentId) } : c,
-    ),
-  };
-  emit();
-  try {
-    await withdrawFundRequestServer({
-      data: { campaignId, paymentId },
-    });
-  } catch (err) {
-    state = prev;
-    emit();
-    throw err;
-  }
+export async function withdrawFundRequest(_campaignId: string, paymentId: string) {
+  await withdrawFundRequestServer({ data: { paymentId } });
+  await refresh();
+}
+
+/* ------------------------------ capabilities ----------------------------- */
+
+export async function saveCapabilities(next: Capability[]) {
+  await saveCapabilitiesServer({
+    data: {
+      items: next.map((c) => ({
+        id: c.id,
+        group: c.group,
+        status: c.status as CapabilityStatus,
+      })),
+    },
+  });
+  await refresh();
+}
+
+/* -------------------------------- transfers ------------------------------ */
+
+export async function createTransferRequest(input: {
+  campaignId: string;
+  treatmentPhase: string;
+  serviceId: string;
+  reason: string;
+  urgency: Urgency;
+  extra?: string | undefined;
+}): Promise<TransferRequest | undefined> {
+  const { referenceCode } = await createTransferServer({
+    data: {
+      campaignId: input.campaignId,
+      treatmentPhase: input.treatmentPhase,
+      serviceId: input.serviceId,
+      reason: input.reason,
+      urgency: input.urgency,
+      ...(input.extra ? { extra: input.extra } : {}),
+    },
+  });
+  await refresh();
+  return state.transfers.find((t) => t.id === referenceCode);
+}
+
+export async function cancelTransfer(dbId: string) {
+  await cancelTransferServer({ data: { id: dbId } });
+  await refresh();
+}
+
+/** Demo stand-in for the FundEzer Admin decision (never the hospital itself). */
+export async function simulateAdvance(dbId: string) {
+  await advanceTransferServer({ data: { id: dbId } });
+  await refresh();
+}
+
+export async function simulateReject(dbId: string, reason = "FundEzer Admin declined this transfer.") {
+  await rejectTransferServer({ data: { id: dbId, reason } });
+  await refresh();
 }
