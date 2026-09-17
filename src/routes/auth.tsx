@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -187,11 +187,6 @@ function AuthPage() {
               </Button>
             </TabsContent>
           </Tabs>
-          <p className="text-center text-sm text-muted-foreground">
-            <Link to="/" className="text-primary underline">
-              Continue without signing in
-            </Link>
-          </p>
         </CardContent>
       </Card>
     </div>

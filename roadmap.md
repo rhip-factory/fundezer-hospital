@@ -20,3 +20,8 @@ Connect the existing portal to the shared FundEzer backend (ref btdhnaajdbrwvhgo
 
 ## Blocked / user action
 - Leaked-password protection is disabled in Supabase Auth (dashboard setting, user must enable).
+
+## Admin Portal (new request)
+- Admin route(s) connected to Fundezer: review transfers (approve/reject/advance), approve/decline fund requests, update campaigns (approve updates, status changes)
+- Reuse portal design system; admin role via user_roles/hospital-independent check
+- Do not let hospital users approve their own requests

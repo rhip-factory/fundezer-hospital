@@ -26,6 +26,12 @@ import {
  * ------------------------------------------------------------------------- */
 
 let state: PortalPayload = { ...emptyPortalPayload };
+let hydrated = false;
+
+/** True once the first backend load has finished (signed-in or not). */
+export function usePortalHydrated() {
+  return useSyncExternalStore(subscribe, () => hydrated, () => hydrated);
+}
 
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
@@ -50,6 +56,7 @@ export async function hydrateFromServer() {
   } catch {
     state = { ...emptyPortalPayload };
   }
+  hydrated = true;
   emit();
 }
 

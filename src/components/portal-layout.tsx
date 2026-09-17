@@ -1,4 +1,5 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useEffect } from "react";
 import {
   LayoutDashboard,
   ClipboardList,
@@ -13,7 +14,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import logo from "@/assets/fundezer-icon.png.asset.json";
-import { usePortalState } from "@/lib/store";
+import { usePortalHydrated, usePortalState } from "@/lib/store";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -39,8 +40,16 @@ export function PortalLayout({
   children: ReactNode;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { applications, hospital, reviewerName, reviewerRole } = usePortalState();
+  const navigate = useNavigate();
+  const hydrated = usePortalHydrated();
+  const { applications, hospital, reviewerName, reviewerRole, signedIn } = usePortalState();
   const pending = applications.filter((a) => a.status === "pending").length;
+
+  useEffect(() => {
+    if (hydrated && !signedIn) navigate({ to: "/auth", replace: true });
+  }, [hydrated, signedIn, navigate]);
+
+  if (!hydrated || !signedIn) return null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -118,12 +127,6 @@ export function PortalLayout({
                   <p className="text-xs text-muted-foreground">{reviewerRole || "Not signed in"}</p>
                 </div>
               </div>
-              <Link
-                to="/auth"
-                className="inline-flex h-8 items-center justify-center rounded-md border border-input bg-background px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              >
-                Sign in
-              </Link>
             </div>
           </div>
           <nav className="flex gap-1 overflow-x-auto border-t border-border px-4 py-2 lg:hidden">
