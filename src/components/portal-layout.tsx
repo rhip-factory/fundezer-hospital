@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import logo from "@/assets/fundezer-icon.png.asset.json";
-import { usePortalState } from "@/lib/store";
+import { usePortalHydrated, usePortalState } from "@/lib/store";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -41,14 +41,15 @@ export function PortalLayout({
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
+  const hydrated = usePortalHydrated();
   const { applications, hospital, reviewerName, reviewerRole, signedIn } = usePortalState();
   const pending = applications.filter((a) => a.status === "pending").length;
 
   useEffect(() => {
-    if (!signedIn) navigate({ to: "/auth", replace: true });
-  }, [signedIn, navigate]);
+    if (hydrated && !signedIn) navigate({ to: "/auth", replace: true });
+  }, [hydrated, signedIn, navigate]);
 
-  if (!signedIn) return null;
+  if (!hydrated || !signedIn) return null;
 
   return (
     <div className="min-h-screen bg-background">

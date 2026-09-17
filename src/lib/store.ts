@@ -56,6 +56,7 @@ export async function hydrateFromServer() {
   } catch {
     state = { ...emptyPortalPayload };
   }
+  hydrated = true;
   emit();
 }
 
