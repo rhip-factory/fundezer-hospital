@@ -187,11 +187,6 @@ function AuthPage() {
               </Button>
             </TabsContent>
           </Tabs>
-          <p className="text-center text-sm text-muted-foreground">
-            <Link to="/" className="text-primary underline">
-              Continue without signing in
-            </Link>
-          </p>
         </CardContent>
       </Card>
     </div>

@@ -39,8 +39,15 @@ export function PortalLayout({
   children: ReactNode;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { applications, hospital, reviewerName, reviewerRole } = usePortalState();
+  const navigate = useNavigate();
+  const { applications, hospital, reviewerName, reviewerRole, signedIn } = usePortalState();
   const pending = applications.filter((a) => a.status === "pending").length;
+
+  useEffect(() => {
+    if (!signedIn) navigate({ to: "/auth", replace: true });
+  }, [signedIn, navigate]);
+
+  if (!signedIn) return null;
 
   return (
     <div className="min-h-screen bg-background">
