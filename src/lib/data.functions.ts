@@ -503,6 +503,7 @@ export const getPortalData = createServerFn({ method: "GET" })
           (donationRows ?? []).filter((d) => d.campaign_id === row.id),
           (updateRows ?? []).filter((u) => u.campaign_id === row.id),
           (fundRequestRows ?? []).filter((f) => f.campaign_id === row.id),
+          (journeyRows ?? []).filter((j) => j.campaign_id === row.id),
         ),
       ),
       capabilities,
