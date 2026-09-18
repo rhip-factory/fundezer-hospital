@@ -15,7 +15,7 @@ import { RequestTransferDialog } from "@/components/request-transfer-dialog";
 import { TransferStatusBadge, TransferTimeline, UrgencyBadge } from "@/components/transfer-bits";
 import { isTerminal, transferStatusLabel } from "@/lib/transfers";
 
-const stages = ["Campaign live", "Investigations", "Procedure", "Recovery", "Completed"];
+const fallbackStages = ["Campaign live", "Investigations", "Procedure", "Recovery", "Completed"];
 
 export const Route = createFileRoute("/campaigns/$id")({
   head: () => ({
@@ -56,6 +56,13 @@ function CampaignDetail() {
 
   const pct = Math.min(100, Math.round((c.raised / c.goal) * 100));
   const { paid, reserved, available } = campaignWallet(c);
+  // Treatment journey comes from the patient's recorded journey stages when the
+  // backend has them; otherwise fall back to the campaign's funding stage.
+  const journeySteps =
+    c.journey.length > 0
+      ? c.journey.map((j) => ({ label: j.stage, done: j.status === "Completed", current: j.status === "In Progress" }))
+      : fallbackStages.map((label, i) => ({ label, done: i <= c.treatmentStage, current: i === c.treatmentStage }));
+  const stages = journeySteps.map((s) => s.label);
 
   const postUpdate = async () => {
     if (!note.trim()) {
@@ -118,18 +125,18 @@ function CampaignDetail() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex flex-wrap gap-2">
-                {stages.map((s, i) => (
+                {journeySteps.map((s) => (
                   <span
-                    key={s}
+                    key={s.label}
                     className={
                       "rounded-full border px-3 py-1 text-xs font-medium " +
-                      (i <= c.treatmentStage
+                      (s.done || s.current
                         ? "border-primary/30 bg-primary-soft text-accent-foreground"
                         : "border-border text-muted-foreground")
                     }
                   >
-                    {i <= c.treatmentStage && <CheckCircle2 className="mr-1 inline h-3 w-3" />}
-                    {s}
+                    {s.done && <CheckCircle2 className="mr-1 inline h-3 w-3" />}
+                    {s.label}
                   </span>
                 ))}
               </div>
