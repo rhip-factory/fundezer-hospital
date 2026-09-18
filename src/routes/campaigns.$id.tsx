@@ -62,6 +62,7 @@ function CampaignDetail() {
     c.journey.length > 0
       ? c.journey.map((j) => ({ label: j.stage, done: j.status === "Completed", current: j.status === "In Progress" }))
       : fallbackStages.map((label, i) => ({ label, done: i <= c.treatmentStage, current: i === c.treatmentStage }));
+  const stages = journeySteps.map((s) => s.label);
 
   const postUpdate = async () => {
     if (!note.trim()) {
