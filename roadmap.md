@@ -17,8 +17,10 @@ Connect the existing portal to the shared FundEzer backend (ref btdhnaajdbrwvhgo
 - [x] Typecheck + build clean; signed-out routing and live hospital list verified in browser
 - [ ] Signed-in end-to-end QA (blocked: external Supabase, no test session can be minted)
 
+- [x] Treatment journey read from `treatment_journeys`; all sample patient/campaign fixtures deleted from `src/lib/mock-data.ts` (only types + currency/cost helpers remain)
+
 ## Still local / not connected
-- Treatment journey strip on the campaign page is derived from campaign + transfer data; `treatment_journeys` / `treatment_updates` tables are not read or written.
+- `treatment_updates` is not written (campaign updates go to `campaign_updates`).
 - `notifications` and `audit_logs` are not written by the portal (audit_logs is admin-only by RLS).
 - Applications list is empty until real applications exist in the database (no seed data was added).
 
