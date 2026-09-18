@@ -28,6 +28,7 @@ type FundRequestRow = Tables["fund_requests"]["Row"];
 type TransferRow = Tables["transfers"]["Row"];
 type TransferEventRow = Tables["transfer_events"]["Row"];
 type DocumentRow = Tables["documents"]["Row"];
+type JourneyRow = Tables["treatment_journeys"]["Row"];
 type AppStatus = Database["public"]["Enums"]["application_status"];
 type CampaignStatusDb = Database["public"]["Enums"]["campaign_status"];
 type TransferStatusDb = Database["public"]["Enums"]["transfer_status"];
@@ -203,6 +204,7 @@ function mapCampaign(
   donations: DonationRow[],
   updates: CampaignUpdateRow[],
   fundRequests: FundRequestRow[],
+  journeys: JourneyRow[],
 ): Campaign {
   const paidDonations = donations.filter((d) => d.payment_status === "Paid");
   return {
@@ -222,6 +224,10 @@ function mapCampaign(
     })),
     updates: updates.map((u) => ({ date: fmt(u.created_at), note: u.content })),
     payments: fundRequests.map(mapPayment),
+    journey: journeys
+      .slice()
+      .sort((a, b) => a.position - b.position)
+      .map((j) => ({ stage: j.stage, status: j.stage_status })),
   };
 }
 
@@ -380,6 +386,7 @@ export const getPortalData = createServerFn({ method: "GET" })
       { data: fundRequestRows },
       { data: documentRows },
       { data: eventRows },
+      { data: journeyRows },
     ] = await Promise.all([
       patientIds.length
         ? supabase.from("patients").select("*").in("id", patientIds)
@@ -413,6 +420,13 @@ export const getPortalData = createServerFn({ method: "GET" })
               transfers.map((t) => t.id),
             )
         : Promise.resolve({ data: [] as TransferEventRow[] }),
+      campaignIds.length
+        ? supabase
+            .from("treatment_journeys")
+            .select("*")
+            .in("campaign_id", campaignIds)
+            .order("position")
+        : Promise.resolve({ data: [] as JourneyRow[] }),
     ]);
 
     const patientById = new Map((patientRows ?? []).map((p) => [p.id, p]));
