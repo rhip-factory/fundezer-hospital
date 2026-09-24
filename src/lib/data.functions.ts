@@ -524,7 +524,11 @@ export const getPortalData = createServerFn({ method: "GET" })
 
 export const listSignUpHospitals = createServerFn({ method: "GET" }).handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin.from("hospitals").select("id, name, city").order("name");
+  const { data, error } = await supabaseAdmin
+    .from("hospitals")
+    .select("id, name, city")
+    .eq("status", "active")
+    .order("name");
   if (error) throw new Error(error.message);
   return data ?? [];
 });
