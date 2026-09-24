@@ -101,6 +101,21 @@ export function PortalLayout({
           <p className="mt-2 text-sm font-semibold">{hospital?.name ?? "No hospital linked"}</p>
           <p className="text-xs text-muted-foreground">{hospital ? `${hospital.city}, ${hospital.state}` : "Sign in to load your hospital"}</p>
         </div>
+
+        <div className="px-3 pb-4">
+          <button
+            type="button"
+            onClick={async () => {
+              await supabase.auth.signOut();
+              await hydrateFromServer();
+              navigate({ to: "/auth", replace: true });
+            }}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+          >
+            <LogOut className="h-4 w-4" />
+            Log out
+          </button>
+        </div>
       </aside>
 
       <div className="lg:pl-64">
@@ -129,18 +144,6 @@ export function PortalLayout({
                   <p className="text-xs text-muted-foreground">{reviewerRole || "Not signed in"}</p>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={async () => {
-                  await supabase.auth.signOut();
-                  await hydrateFromServer();
-                  navigate({ to: "/auth", replace: true });
-                }}
-                className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Log out</span>
-              </button>
             </div>
           </div>
           <nav className="flex gap-1 overflow-x-auto border-t border-border px-4 py-2 lg:hidden">
@@ -154,6 +157,17 @@ export function PortalLayout({
                 {item.label}
               </Link>
             ))}
+            <button
+              type="button"
+              onClick={async () => {
+                await supabase.auth.signOut();
+                await hydrateFromServer();
+                navigate({ to: "/auth", replace: true });
+              }}
+              className="whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
+              Log out
+            </button>
           </nav>
         </header>
         <main className="px-6 py-6">{children}</main>
