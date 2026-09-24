@@ -74,7 +74,7 @@ export function resetToSignedOut() {
   emit();
 }
 
-/* ------------------------------ applications ----------------------------- */
+const refresh = () => hydrateFromServer();
 
 export async function updateApplication(id: string, patch: Partial<Application>) {
   await updateApplicationServer({
