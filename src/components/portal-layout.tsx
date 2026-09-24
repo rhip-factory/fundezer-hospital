@@ -16,7 +16,7 @@ import {
 import type { ReactNode } from "react";
 import logo from "@/assets/fundezer-icon.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
-import { hydrateFromServer, usePortalHydrated, usePortalState } from "@/lib/store";
+import { hydrateFromServer, resetToSignedOut, usePortalHydrated, usePortalState } from "@/lib/store";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
