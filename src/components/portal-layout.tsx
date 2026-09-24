@@ -101,6 +101,21 @@ export function PortalLayout({
           <p className="mt-2 text-sm font-semibold">{hospital?.name ?? "No hospital linked"}</p>
           <p className="text-xs text-muted-foreground">{hospital ? `${hospital.city}, ${hospital.state}` : "Sign in to load your hospital"}</p>
         </div>
+
+        <div className="px-3 pb-4">
+          <button
+            type="button"
+            onClick={async () => {
+              await supabase.auth.signOut();
+              await hydrateFromServer();
+              navigate({ to: "/auth", replace: true });
+            }}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+          >
+            <LogOut className="h-4 w-4" />
+            Log out
+          </button>
+        </div>
       </aside>
 
       <div className="lg:pl-64">
