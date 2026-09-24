@@ -107,7 +107,7 @@ export function PortalLayout({
             type="button"
             onClick={async () => {
               await supabase.auth.signOut();
-              await hydrateFromServer();
+              resetToSignedOut();
               navigate({ to: "/auth", replace: true });
             }}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
@@ -161,7 +161,7 @@ export function PortalLayout({
               type="button"
               onClick={async () => {
                 await supabase.auth.signOut();
-                await hydrateFromServer();
+                resetToSignedOut();
                 navigate({ to: "/auth", replace: true });
               }}
               className="whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
