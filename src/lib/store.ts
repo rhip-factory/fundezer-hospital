@@ -52,7 +52,15 @@ export function useTransferState() {
 
 export async function hydrateFromServer() {
   try {
-    state = await getPortalData();
+    // Skip the authenticated call entirely when there is no session —
+    // otherwise the server rejects with 401 before RLS is ever consulted.
+    const { supabase } = await import("@/integrations/supabase/client");
+    const { data } = await supabase.auth.getSession();
+    if (data.session) {
+      state = await getPortalData();
+    } else {
+      state = { ...emptyPortalPayload };
+    }
   } catch {
     state = { ...emptyPortalPayload };
   }
@@ -60,7 +68,11 @@ export async function hydrateFromServer() {
   emit();
 }
 
-const refresh = () => hydrateFromServer();
+export function resetToSignedOut() {
+  state = { ...emptyPortalPayload };
+  hydrated = true;
+  emit();
+}
 
 /* ------------------------------ applications ----------------------------- */
 
