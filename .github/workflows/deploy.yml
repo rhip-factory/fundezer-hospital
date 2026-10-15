@@ -1,0 +1,61 @@
+name: Deploy
+
+# Lovable pushes to `main`, so every change made in the Lovable editor lands
+# here and deploys itself. Pull requests do not deploy.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Never let two deploys of this app overlap.
+concurrency:
+  group: deploy-fundezer-hospital
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to red-bridge
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Build and restart on the server
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          # Pin the server's host key instead of trusting whatever answers.
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes "fundezer@$DEPLOY_HOST" \
+            'set -euo pipefail
+             # Node 24: @supabase/supabase-js fails on the system Node 20 and
+             # only warns, surfacing as a bare HTTP 500.
+             export PATH=/srv/fundezer/.local/node/bin:/usr/local/bin:$PATH
+             cd /srv/fundezer/hospital
+             git pull --ff-only origin main
+             bun install --frozen-lockfile
+             # Without this nitro emits a Cloudflare Worker bundle, which starts
+             # under Node and then fails at request time.
+             NITRO_PRESET=node-server bun run build
+             sudo systemctl restart fundezer-hospital'
+
+      - name: Verify the site is serving
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4 5; do
+            code=$(curl -s -o /dev/null -m 20 -w "%{http_code}" https://hospitals.fundezer.org/ || echo 000)
+            if [ "$code" = "200" ]; then
+              echo "hospitals.fundezer.org returned 200 — deployment verified."
+              exit 0
+            fi
+            echo "Got $code on attempt $attempt; retrying in 10s."
+            sleep 10
+          done
+          echo "hospitals.fundezer.org did not return 200 after the deploy." >&2
+          exit 1
